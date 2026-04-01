@@ -210,13 +210,13 @@ function MiniChart({ data, color, minRef, maxRef }) {
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
-function Dashboard({ params, fish, plants, history, reminders, expenses, photo, setPhoto, aquariumName, setAquariumName, setSection }) {
+function Dashboard({ params, fish, plants, history, reminders, expenses, photo, setPhoto, aquariumName, setAquariumName, setSection, customLimits }) {
   const photoRef = useRef();
-  const alerts = useAutoAlerts(params);
+  const alerts = useAutoAlerts(params, customLimits);
   const dangers = alerts.filter(a=>a.level==="danger");
   const warnings = alerts.filter(a=>a.level==="warning");
   const totalFish = fish.reduce((s,f)=>s+f.cantidad,0);
-  const totalPlants = plants.length;
+  const totalPlants = plants.reduce((s,p)=>s+(p.cantidad||1),0);
   const pending = reminders.filter(r=>!r.done);
   const lastMaint = history.find(h=>h.tipo==="mantenimiento");
   const lastFeed = history.find(h=>h.tipo==="alimentacion");
@@ -299,9 +299,9 @@ function Dashboard({ params, fish, plants, history, reminders, expenses, photo, 
         <div style={ss.slab}>Últimos parámetros</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
           {PARAM_DEFS.slice(0,4).map(p=>{
-            const st=getStatus(p.key,params[p.key]);
+            const st=getStatus(p.key,params[p.key],customLimits);
             const bc={ok:"#1e3a2e",warning:"#3a2e1e",danger:"#3a1e1e",neutral:C.card}[st];
-            return <div key={p.key} style={{background:C.card,borderRadius:12,padding:"11px 13px",border:`1px solid ${bc}`}}><div style={{fontSize:16,marginBottom:3}}>{p.icon}</div><div style={{fontSize:10,color:C.muted}}>{p.label}</div><div style={{fontSize:18,fontWeight:800,color:C.text}}>{params[p.key]||"—"}<span style={{fontSize:10,color:C.muted}}> {p.unit}</span></div><Dot status={st}/><span style={{fontSize:9,color:C.muted}}>ideal: {p.ideal}</span></div>;
+            return <div key={p.key} style={{background:C.card,borderRadius:12,padding:"11px 13px",border:`1px solid ${bc}`}}><div style={{fontSize:16,marginBottom:3}}>{p.icon}</div><div style={{fontSize:10,color:C.muted}}>{p.label}</div><div style={{fontSize:18,fontWeight:800,color:C.text}}>{params[p.key]||"—"}<span style={{fontSize:10,color:C.muted}}> {p.unit}</span></div><Dot status={st}/><span style={{fontSize:9,color:C.muted}}>ideal: {customLimits?.[p.key] ? `${customLimits[p.key].min??p.min}–${customLimits[p.key].max??p.max}` : p.ideal} {p.unit}</span></div>;
           })}
         </div>
       </div>
@@ -1040,8 +1040,8 @@ function IA({ params, fish, history, expenses, setExpenses, reminders, mantTasks
   const year=calDate.getFullYear(), month=calDate.getMonth();
   const firstDay=(new Date(year,month,1).getDay()+6)%7;
   const daysInMonth=new Date(year,month+1,0).getDate();
-  const tipoColor={parametros:C.blue,alimentacion:C.green,mantenimiento:C.orange,tratamiento:C.red,recordatorio:"#a78bfa",gasto:"#fbbf24"};
-  const allEvents=[...history,...reminders.map(r=>({...r,tipo:"recordatorio",fecha:r.fecha})),...expenses.map(e=>({...e,tipo:"gasto"}))];
+  const tipoColor={alimentacion:C.green,mantenimiento:C.orange,tratamiento:C.red,recordatorio:"#a78bfa",gasto:"#fbbf24"};
+  const allEvents=[...history.filter(h=>h.tipo==="mantenimiento"||h.tipo==="alimentacion"||h.tipo==="tratamiento"),...reminders.map(r=>({...r,tipo:"recordatorio",fecha:r.fecha})),...expenses.map(e=>({...e,tipo:"gasto"}))];
   const getEventsForDay=day=>{const ds=`${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;return allEvents.filter(e=>{try{const d=new Date(e.fecha?.includes("/")?e.fecha.split("/").reverse().join("-"):e.fecha);return d.getDate()===day&&d.getMonth()===month&&d.getFullYear()===year;}catch{return false;}});};
 
   const filteredExp=expFilter==="all"?expenses:expenses.filter(e=>e.categoria===expFilter);
@@ -1246,58 +1246,159 @@ function createEmptyAquarium(id, nombre) {
 
 // Hook para leer/escribir todo el estado de acuarios en localStorage
 function useAquariums() {
-  const KEY = "aq4_aquariums";
+  const KEY_IDS   = "aq4_ids";
   const KEY_ACTIVE = "aq4_activeAquarium";
 
-  const [aquariums, setAquariumsRaw] = useState(() => {
+  // Lee un campo de un acuario desde localStorage
+  const readField = (id, field, def) => {
     try {
-      const saved = localStorage.getItem(KEY);
-      if (saved) return JSON.parse(saved);
+      const s = localStorage.getItem(`aq4_${id}_${field}`);
+      return s !== null ? JSON.parse(s) : def;
+    } catch { return def; }
+  };
+
+  // Escribe un campo de un acuario en localStorage
+  const writeField = (id, field, val) => {
+    try { localStorage.setItem(`aq4_${id}_${field}`, JSON.stringify(val)); } catch(e) {
+      console.warn(`No se pudo guardar ${field}:`, e);
+    }
+  };
+
+  // Carga un acuario completo desde localStorage
+  const loadAquarium = (id) => ({
+    id,
+    nombre:           readField(id, "nombre",           id === "aq1" ? "Amazónico 300L" : "Nuevo Acuario"),
+    params:           readField(id, "params",           {}),
+    fish:             readField(id, "fish",             id === "aq1" ? INITIAL_FISH : []),
+    plants:           readField(id, "plants",           id === "aq1" ? INITIAL_PLANTS : []),
+    history:          readField(id, "history",          []),
+    gallery:          readField(id, "gallery",          []),
+    reminders:        readField(id, "reminders",        []),
+    expenses:         readField(id, "expenses",         []),
+    customLimits:     readField(id, "customLimits",     {}),
+    activeExtraParams:readField(id, "activeExtraParams",[]),
+    equipo:           readField(id, "equipo",           INITIAL_EQUIPO),
+    mantTasks:        readField(id, "mantTasks",        MANT_TASKS_DEFAULT),
+  });
+
+  // Migración desde formato antiguo (aq4_aquariums o aq4_params etc.)
+  const migrateIfNeeded = () => {
+    // Si ya tenemos el nuevo formato, no migrar
+    if (localStorage.getItem(KEY_IDS)) return;
+
+    // Intentar migrar desde el objeto único anterior
+    try {
+      const saved = localStorage.getItem("aq4_aquariums");
+      if (saved) {
+        const aquariums = JSON.parse(saved);
+        const ids = aquariums.map(a => a.id);
+        localStorage.setItem(KEY_IDS, JSON.stringify(ids));
+        aquariums.forEach(a => {
+          Object.entries(a).forEach(([field, val]) => {
+            if (field !== "id" && field !== "photo") writeField(a.id, field, val);
+          });
+        });
+        return;
+      }
     } catch {}
-    // Primera vez: migrar datos existentes del acuario único
+
+    // Migrar desde el formato original (clave plana)
     const migrate = (k, def) => { try { const s=localStorage.getItem("aq4_"+k); return s?JSON.parse(s):def; } catch { return def; } };
-    return [{
-      id: "aq1",
-      nombre: migrate("aquariumName", "Amazónico 300L"),
-      params: migrate("params", {}),
-      fish: migrate("fish", INITIAL_FISH),
-      plants: migrate("plants", INITIAL_PLANTS),
-      history: migrate("history", []),
-      gallery: migrate("gallery", []),
-      reminders: migrate("reminders", []),
-      expenses: migrate("expenses", []),
-      photo: migrate("photo", null),
-      customLimits: migrate("customLimits", {}),
-      activeExtraParams: migrate("activeExtraParams", []),
-      equipo: migrate("equipo", INITIAL_EQUIPO),
-      mantTasks: migrate("mantTasks", MANT_TASKS_DEFAULT),
-    }];
+    const id = "aq1";
+    localStorage.setItem(KEY_IDS, JSON.stringify([id]));
+    writeField(id, "nombre",            migrate("aquariumName", "Amazónico 300L"));
+    writeField(id, "params",            migrate("params", {}));
+    writeField(id, "fish",              migrate("fish", INITIAL_FISH));
+    writeField(id, "plants",            migrate("plants", INITIAL_PLANTS));
+    writeField(id, "history",           migrate("history", []));
+    writeField(id, "gallery",           migrate("gallery", []));
+    writeField(id, "reminders",         migrate("reminders", []));
+    writeField(id, "expenses",          migrate("expenses", []));
+    writeField(id, "customLimits",      migrate("customLimits", {}));
+    writeField(id, "activeExtraParams", migrate("activeExtraParams", []));
+    writeField(id, "equipo",            migrate("equipo", INITIAL_EQUIPO));
+    writeField(id, "mantTasks",         migrate("mantTasks", MANT_TASKS_DEFAULT));
+    // Foto
+    const oldPhoto = migrate("photo", null);
+    if (oldPhoto) try { localStorage.setItem("aq4_photo_"+id, oldPhoto); } catch {}
+  };
+
+  // Estado
+  const [ids, setIdsState] = useState(() => {
+    migrateIfNeeded();
+    try { const s = localStorage.getItem(KEY_IDS); return s ? JSON.parse(s) : ["aq1"]; } catch { return ["aq1"]; }
+  });
+
+  const [aquariums, setAquariumsState] = useState(() => {
+    const savedIds = (() => { try { const s=localStorage.getItem(KEY_IDS); return s?JSON.parse(s):["aq1"]; } catch { return ["aq1"]; } })();
+    return savedIds.map(loadAquarium);
   });
 
   const [activeId, setActiveIdRaw] = useState(() => {
-    try { return localStorage.getItem(KEY_ACTIVE) || "aq1"; } catch { return "aq1"; }
+    try { return localStorage.getItem(KEY_ACTIVE) || ids[0] || "aq1"; } catch { return "aq1"; }
   });
-
-  const setAquariums = (val) => {
-    setAquariumsRaw(prev => {
-      const next = typeof val === "function" ? val(prev) : val;
-      try { localStorage.setItem(KEY, JSON.stringify(next)); } catch {}
-      return next;
-    });
-  };
 
   const setActiveId = (id) => {
     setActiveIdRaw(id);
     try { localStorage.setItem(KEY_ACTIVE, id); } catch {}
   };
 
+  // Actualizar un acuario — guarda SOLO el campo cambiado en localStorage
   const updateAquarium = (id, updater) => {
-    setAquariums(prev => prev.map(a => a.id === id ? {...a, ...(typeof updater === "function" ? updater(a) : updater)} : a));
+    setAquariumsState(prev => {
+      const next = prev.map(a => {
+        if (a.id !== id) return a;
+        const updated = typeof updater === "function" ? {...a, ...updater(a)} : {...a, ...updater};
+        // Detectar qué campos cambiaron y guardarlos individualmente
+        Object.keys(updated).forEach(field => {
+          if (field === "id" || field === "photo" || field === "_photoTs") return;
+          if (JSON.stringify(updated[field]) !== JSON.stringify(a[field])) {
+            writeField(id, field, updated[field]);
+          }
+        });
+        return updated;
+      });
+      return next;
+    });
   };
 
-  const activeAquarium = aquariums.find(a => a.id === activeId) || aquariums[0];
+  // Añadir acuario
+  const setAquariums = (val) => {
+    setAquariumsState(prev => {
+      const next = typeof val === "function" ? val(prev) : val;
+      // Guardar IDs
+      const newIds = next.map(a => a.id);
+      try { localStorage.setItem(KEY_IDS, JSON.stringify(newIds)); } catch {}
+      // Guardar campos de acuarios nuevos
+      next.forEach(a => {
+        if (!prev.find(p => p.id === a.id)) {
+          Object.entries(a).forEach(([field, val]) => {
+            if (field !== "id" && field !== "photo") writeField(a.id, field, val);
+          });
+        }
+      });
+      // Borrar acuarios eliminados
+      prev.forEach(a => {
+        if (!next.find(n => n.id === a.id)) {
+          ["nombre","params","fish","plants","history","gallery","reminders","expenses",
+           "customLimits","activeExtraParams","equipo","mantTasks"].forEach(field => {
+            try { localStorage.removeItem(`aq4_${a.id}_${field}`); } catch {}
+          });
+          try { localStorage.removeItem("aq4_photo_"+a.id); } catch {}
+        }
+      });
+      return next;
+    });
+  };
 
-  return { aquariums, setAquariums, activeId, setActiveId, activeAquarium, updateAquarium };
+  // Foto en clave separada (base64 muy grande)
+  const getAquariumPhoto = (id) => {
+    try { return localStorage.getItem("aq4_photo_"+id) || null; } catch { return null; }
+  };
+
+  const activeAquarium = aquariums.find(a => a.id === activeId) || aquariums[0] || loadAquarium("aq1");
+
+  return { aquariums, setAquariums, activeId, setActiveId, activeAquarium, updateAquarium, getAquariumPhoto };
 }
 
 // ── SELECTOR DE ACUARIOS (pantalla modal) ─────────────────────────────────────
@@ -1389,7 +1490,7 @@ const eC={saludable:C.green,enfermo:C.red,observacion:C.yellow};
 export default function App() {
   const [section, setSection] = useState("dashboard");
   const [showAquariumSelector, setShowAquariumSelector] = useState(false);
-  const { aquariums, setAquariums, activeId, setActiveId, activeAquarium, updateAquarium } = useAquariums();
+  const { aquariums, setAquariums, activeId, setActiveId, activeAquarium, updateAquarium, getAquariumPhoto } = useAquariums();
 
   // Helpers para leer/escribir el acuario activo
   const aq = activeAquarium;
@@ -1409,8 +1510,18 @@ export default function App() {
   const setReminders = (v) => upd("reminders", v);
   const expenses = aq.expenses || [];
   const setExpenses = (v) => upd("expenses", v);
-  const photo = aq.photo || null;
-  const setPhoto = (v) => upd("photo", v);
+  const [photo, setPhotoState] = useState(() => getAquariumPhoto(activeId));
+  // Recargar foto cuando cambia el acuario activo
+  useEffect(() => {
+    setPhotoState(getAquariumPhoto(activeId));
+  }, [activeId]);
+  const setPhoto = (v) => {
+    try {
+      if (v) localStorage.setItem("aq4_photo_"+activeId, v);
+      else localStorage.removeItem("aq4_photo_"+activeId);
+    } catch(e) { console.warn("Foto no guardada:", e); }
+    setPhotoState(v);
+  };
   const aquariumName = aq.nombre || "Mi Acuario";
   const setAquariumName = (v) => updateAquarium(activeId, {nombre: v});
   const customLimits = aq.customLimits || {};
@@ -1427,11 +1538,17 @@ export default function App() {
   const alerts = useAutoAlerts(params, customLimits);
   const criticals = alerts.filter(a=>a.level==="danger").length;
 
-  // Cambiar favicon al logo de AquaLog
+  // Cambiar favicon e icono de iOS al logo de AquaLog
   useEffect(()=>{
-    const link = document.querySelector("link[rel~='icon']") || document.createElement("link");
+    // Favicon estándar
+    let link = document.querySelector("link[rel~='icon']") || document.createElement("link");
     link.rel = "icon"; link.href = LOGO_FAV;
     document.head.appendChild(link);
+    // Apple touch icon (icono de escritorio en iOS)
+    let apple = document.querySelector("link[rel='apple-touch-icon']") || document.createElement("link");
+    apple.rel = "apple-touch-icon";
+    apple.href = LOGO_FAV;
+    document.head.appendChild(apple);
     document.title = "AquaLog";
   }, []);
 
@@ -1504,7 +1621,7 @@ export default function App() {
         </div>
       )}
 
-      {section==="dashboard"&&<Dashboard params={params} fish={fish} plants={plants} history={history} reminders={reminders} expenses={expenses} photo={photo} setPhoto={setPhoto} aquariumName={aquariumName} setAquariumName={setAquariumName} setSection={setSection}/>}
+      {section==="dashboard"&&<Dashboard params={params} fish={fish} plants={plants} history={history} reminders={reminders} expenses={expenses} photo={photo} setPhoto={setPhoto} aquariumName={aquariumName} setAquariumName={setAquariumName} setSection={setSection} customLimits={customLimits}/>}
       {section==="params"&&<Params params={params} setParams={setParams} history={history} addHistory={addHistory} customLimits={customLimits} setCustomLimits={setCustomLimits} activeExtraParams={activeExtraParams} setActiveExtraParams={setActiveExtraParams}/>}
       {section==="vida"&&<Vida fish={fish} setFish={setFish} plants={plants} setPlants={setPlants} gallery={gallery} setGallery={setGallery}/>}
       {section==="extras"&&<Extras addHistory={addHistory} history={history} reminders={reminders} setReminders={setReminders} equipo={equipo} setEquipo={setEquipo} mantTasks={mantTasks} setMantTasks={setMantTasks}/>}
