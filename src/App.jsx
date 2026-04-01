@@ -1,16 +1,32 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 
+
+// ── LOGO ─────────────────────────────────────────────────────────────────────
+const LOGO_FISH = "data:image/png;base64,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";
+const LOGO_FAV = "data:image/png;base64,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";
+
 // ── CONSTANTES ────────────────────────────────────────────────────────────────
 const PARAM_DEFS = [
   { key:"temperatura", label:"Temperatura", unit:"°C", icon:"🌡️", min:26, max:30, ideal:"27-29", color:"#f97316" },
   { key:"ph", label:"pH", unit:"", icon:"⚗️", min:6.0, max:7.5, ideal:"6.5-7.0", color:"#a78bfa" },
   { key:"gh", label:"GH", unit:"°dH", icon:"💧", min:3, max:10, ideal:"4-8", color:"#38bdf8" },
   { key:"kh", label:"KH", unit:"°dH", icon:"🔬", min:2, max:6, ideal:"3-5", color:"#34d399" },
-  { key:"amonio", label:"Amonio", unit:"mg/L", icon:"⚠️", min:0, max:0.5, ideal:"0", color:"#f87171" },
-  { key:"nitritos", label:"Nitritos", unit:"mg/L", icon:"⚠️", min:0, max:0.5, ideal:"0", color:"#fb923c" },
-  { key:"nitratos", label:"Nitratos", unit:"mg/L", icon:"📊", min:0, max:30, ideal:"<20", color:"#fbbf24" },
+  { key:"amonio", label:"Amonio (NH₃)", unit:"mg/L", icon:"⚠️", min:0, max:0.5, ideal:"0", color:"#f87171" },
+  { key:"nitritos", label:"Nitritos (NO₂⁻)", unit:"mg/L", icon:"⚠️", min:0, max:0.5, ideal:"0", color:"#fb923c" },
+  { key:"nitratos", label:"Nitratos (NO₃⁻)", unit:"mg/L", icon:"📊", min:0, max:30, ideal:"<20", color:"#fbbf24" },
   { key:"co2", label:"CO2", unit:"mg/L", icon:"🌿", min:15, max:35, ideal:"20-30", color:"#4ade80" },
 ];
+
+// Parámetros opcionales que se pueden añadir
+const EXTRA_PARAM_DEFS = [
+  { key:"fosfatos", label:"Fosfatos (PO₄³⁻)", unit:"mg/L", icon:"🧪", min:0, max:0.5, ideal:"<0.1", color:"#e879f9" },
+  { key:"oxigeno", label:"Oxígeno disuelto", unit:"mg/L", icon:"💨", min:6, max:10, ideal:">7", color:"#67e8f9" },
+  { key:"conductividad", label:"Conductividad", unit:"μS/cm", icon:"⚡", min:50, max:200, ideal:"80-150", color:"#facc15" },
+  { key:"cloro", label:"Cloro", unit:"mg/L", icon:"🧴", min:0, max:0.1, ideal:"0", color:"#f43f5e" },
+  { key:"hierro", label:"Hierro (Fe)", unit:"mg/L", icon:"🔩", min:0, max:0.5, ideal:"0.1-0.3", color:"#d97706" },
+  { key:"magnesio", label:"Magnesio (Mg)", unit:"mg/L", icon:"⚗️", min:5, max:20, ideal:"10-15", color:"#818cf8" },
+];
+
 const INITIAL_FISH = [
   { id:1, nombre:"Disco", cantidad:8, emoji:"🔵", especie:"Symphysodon spp.", estado:"saludable", adquisicion:"", notas:"", historial:[] },
   { id:2, nombre:"Ramirezi", cantidad:6, emoji:"🟡", especie:"Mikrogeophagus ramirezi", estado:"saludable", adquisicion:"", notas:"", historial:[] },
@@ -18,21 +34,84 @@ const INITIAL_FISH = [
   { id:4, nombre:"Corydoras", cantidad:9, emoji:"⚪", especie:"Corydoras spp.", estado:"saludable", adquisicion:"", notas:"", historial:[] },
   { id:5, nombre:"Ancistrus", cantidad:4, emoji:"🟤", especie:"Ancistrus spp.", estado:"saludable", adquisicion:"", notas:"", historial:[] },
 ];
+
+// Base de datos de peces comunes para el desplegable
+const FISH_CATALOG = [
+  { nombre:"Disco", especie:"Symphysodon spp.", emoji:"🔵" },
+  { nombre:"Ramirezi", especie:"Mikrogeophagus ramirezi", emoji:"🟡" },
+  { nombre:"Neón tetras", especie:"Paracheirodon innesi", emoji:"🔴" },
+  { nombre:"Corydoras", especie:"Corydoras spp.", emoji:"⚪" },
+  { nombre:"Ancistrus", especie:"Ancistrus spp.", emoji:"🟤" },
+  { nombre:"Ángel", especie:"Pterophyllum scalare", emoji:"🔷" },
+  { nombre:"Guppy", especie:"Poecilia reticulata", emoji:"🟢" },
+  { nombre:"Platy", especie:"Xiphophorus maculatus", emoji:"🟠" },
+  { nombre:"Molly", especie:"Poecilia sphenops", emoji:"⚫" },
+  { nombre:"Espada", especie:"Xiphophorus hellerii", emoji:"🟥" },
+  { nombre:"Betta", especie:"Betta splendens", emoji:"🔴" },
+  { nombre:"Goldfish", especie:"Carassius auratus", emoji:"🟡" },
+  { nombre:"Koi", especie:"Cyprinus carpio", emoji:"🐠" },
+  { nombre:"Neon negro", especie:"Hyphessobrycon herbertaxelrodi", emoji:"🔵" },
+  { nombre:"Cardinal tetras", especie:"Paracheirodon axelrodi", emoji:"❤️" },
+  { nombre:"Botia payaso", especie:"Chromobotia macracanthus", emoji:"🟠" },
+  { nombre:"Pez globo", especie:"Tetraodon nigroviridis", emoji:"🟢" },
+  { nombre:"Otocinclus", especie:"Otocinclus affinis", emoji:"🤍" },
+  { nombre:"Apistogramma", especie:"Apistogramma cacatuoides", emoji:"🌈" },
+  { nombre:"Hatchetfish", especie:"Carnegiella strigata", emoji:"🪨" },
+  { nombre:"Otro (personalizado)", especie:"", emoji:"🐠" },
+];
+
+// Plantas más comunes para el desplegable
+const PLANT_CATALOG = [
+  { nombre:"Rótala", zona:"Fondo" },
+  { nombre:"Cryptocoryne wendtii", zona:"Medio" },
+  { nombre:"Cryptocoryne parva", zona:"Bajo" },
+  { nombre:"Tenellum", zona:"Bajo" },
+  { nombre:"Anubias nana", zona:"Medio" },
+  { nombre:"Anubias barteri", zona:"Medio" },
+  { nombre:"Java fern", zona:"Medio" },
+  { nombre:"Musgo de java", zona:"Decoración" },
+  { nombre:"Bucephalandra", zona:"Bajo" },
+  { nombre:"Hygrophila polysperma", zona:"Fondo" },
+  { nombre:"Ludwigia repens", zona:"Fondo" },
+  { nombre:"Vallisneria", zona:"Fondo" },
+  { nombre:"Egeria densa", zona:"Fondo" },
+  { nombre:"Elodea", zona:"Libre" },
+  { nombre:"Echinodorus bleheri", zona:"Medio" },
+  { nombre:"Echinodorus tenellus", zona:"Bajo" },
+  { nombre:"Pistia stratiotes", zona:"Superficie" },
+  { nombre:"Otra (personalizada)", zona:"Libre" },
+];
+
 const FISH_DB = {
   "Symphysodon spp.": { temp:"28-31°C", ph:"5.5-7.0", gh:"1-8°dH", tamano:"15-21cm", dieta:"Omnívoro (gránulos, corazón de buey, artemia)", compatibilidad:"Otras especies de aguas blandas y cálidas", nivel:"Avanzado", curiosidades:"El disco es uno de los peces más exigentes en cuanto a calidad de agua. Son muy sensibles al amonio y nitritos. Forman parejas estables y cuidan a sus crías." },
   "Mikrogeophagus ramirezi": { temp:"26-30°C", ph:"5.0-7.0", gh:"1-6°dH", tamano:"5-7cm", dieta:"Omnívoro (gránulos pequeños, artemia, tubifex)", compatibilidad:"Pacífico con especies similares", nivel:"Intermedio", curiosidades:"El ramirezi es uno de los cíclidos enanos más coloridos. Forma parejas monógamas y defiende su zona de puesta." },
   "Paracheirodon innesi": { temp:"20-26°C", ph:"5.5-7.5", gh:"1-10°dH", tamano:"3-4cm", dieta:"Omnívoro (microgránulos, artemia nauplii)", compatibilidad:"Muy pacífico, ideal para comunidad", nivel:"Principiante", curiosidades:"El neón tetras nada en bancos y se siente más seguro en grupos de 8+. La franja azul-roja es una advertencia a depredadores." },
   "Corydoras spp.": { temp:"22-28°C", ph:"6.0-7.8", gh:"2-15°dH", tamano:"4-7cm", dieta:"Omnívoro bentónico (pastillas de fondo, gusanos)", compatibilidad:"Muy pacífico, limpiador del sustrato", nivel:"Principiante", curiosidades:"Los corydoras respiran aire atmosférico ocasionalmente. Viven en grupos y son muy sociales. Nunca deben mantenerse solos." },
   "Ancistrus spp.": { temp:"23-28°C", ph:"6.0-7.5", gh:"2-12°dH", tamano:"10-15cm", dieta:"Herbívoro (algas, madera, verduras)", compatibilidad:"Pacífico, puede ser territorial con otros plecos", nivel:"Principiante", curiosidades:"El ancistrus es esencial para el control de algas. Los machos tienen tentáculos en el hocico. Necesitan madera para digerir correctamente." },
+  "Pterophyllum scalare": { temp:"24-30°C", ph:"6.0-7.5", gh:"3-8°dH", tamano:"12-15cm", dieta:"Omnívoro (gránulos, artemia, gusanos)", compatibilidad:"Semipacífico, puede comerse peces pequeños", nivel:"Intermedio", curiosidades:"El ángel es uno de los cíclidos más populares. Es territorial durante la reproducción pero generalmente pacífico." },
+  "Poecilia reticulata": { temp:"22-28°C", ph:"6.5-8.5", gh:"8-20°dH", tamano:"3-6cm", dieta:"Omnívoro (escamas, artemia, vegetales)", compatibilidad:"Muy pacífico, ideal para principiantes", nivel:"Principiante", curiosidades:"El guppy es uno de los peces más adaptables. Los machos tienen coloraciones brillantes para atraer a las hembras." },
+  "Betta splendens": { temp:"24-30°C", ph:"6.0-8.0", gh:"5-20°dH", tamano:"6-8cm", dieta:"Carnívoro (microgránulos, artemia, tubifex)", compatibilidad:"Agresivo con otros bettas, cuidado con aletas largas", nivel:"Principiante", curiosidades:"El betta macho no puede vivir con otros machos. Respira aire atmosférico gracias a su laberinto." },
+  "Paracheirodon axelrodi": { temp:"23-27°C", ph:"4.5-7.0", gh:"1-6°dH", tamano:"4-5cm", dieta:"Omnívoro (microgránulos, artemia nauplii)", compatibilidad:"Muy pacífico, en grupos de 10+", nivel:"Intermedio", curiosidades:"El cardenal es más exigente que el neón en cuanto a calidad de agua. Su coloración roja llega hasta la cola." },
 };
+
 const INITIAL_PLANTS = [
-  { id:1, nombre:"Rótala", zona:"Fondo", estado:"creciendo" },
-  { id:2, nombre:"Criptocorinas", zona:"Medio", estado:"estable" },
-  { id:3, nombre:"Tenellum", zona:"Bajo", estado:"creciendo" },
+  { id:1, nombre:"Rótala", zona:"Fondo", estado:"creciendo", cantidad:1 },
+  { id:2, nombre:"Criptocorinas", zona:"Medio", estado:"estable", cantidad:1 },
+  { id:3, nombre:"Tenellum", zona:"Bajo", estado:"creciendo", cantidad:1 },
 ];
-const EQUIPO = ["Filtro Oase 300","Filtro Ultramax 2000","Calentador Chihiros","Pantalla Chihiros Slim","Sistema CO2"];
+
+// Estado del equipo ampliable
+const INITIAL_EQUIPO = [
+  { id:1, nombre:"Filtro Oase 300", estado:"activo" },
+  { id:2, nombre:"Filtro Ultramax 2000", estado:"activo" },
+  { id:3, nombre:"Calentador Chihiros", estado:"activo" },
+  { id:4, nombre:"Pantalla Chihiros Slim", estado:"activo" },
+  { id:5, nombre:"Sistema CO2", estado:"activo" },
+];
+
 const FEED_TYPES = ["Gránulos","Corazón de buey","Artemia","Tubifex","Pellets","Liofilizado","Verduras","Otro"];
-const MANT_TASKS = { agua:"🪣 Cambio de agua", filtro:"🔧 Limpiar filtro", algas:"🧽 Limpiar algas", sustrato:"🪨 Aspirar sustrato", co2:"💨 Revisar CO2", fertilizante:"🌱 Fertilizante" };
+const MANT_TASKS_DEFAULT = { agua:"🪣 Cambio de agua", filtro:"🔧 Limpiar filtro", algas:"🧽 Limpiar algas", sustrato:"🪨 Aspirar sustrato", co2:"💨 Revisar CO2", fertilizante:"🌱 Fertilizante" };
+const MANT_TASKS_EXTRA = ["🌡️ Calibrar termómetro","💡 Revisar iluminación","🔌 Revisar enchufes","🪵 Limpiar decoración","🐌 Control de caracoles","🧬 Verificar parámetros","💧 Rellenar depósito CO2","🌿 Podar plantas","🪨 Renovar sustrato","💊 Añadir fertilizante líquido","🪤 Trampa para algas","🔄 Cambiar medios filtro"];
 const SECTIONS = [
   { id:"dashboard", label:"Inicio", icon:"🏠" },
   { id:"params", label:"Params", icon:"📊" },
@@ -65,17 +144,19 @@ function usePersist(key, def) {
   const set = useCallback(val => setV(prev => { const n=typeof val==="function"?val(prev):val; try{localStorage.setItem("aq4_"+key,JSON.stringify(n));}catch{} return n; }), [key]);
   return [v, set];
 }
-function getStatus(key, value) {
-  const d=PARAM_DEFS.find(p=>p.key===key);
+function getStatus(key, value, customLimits) {
+  const d=PARAM_DEFS.find(p=>p.key===key) || EXTRA_PARAM_DEFS.find(p=>p.key===key);
   if (!d||value===undefined||value==="") return "neutral";
   const v=parseFloat(value);
+  const min = customLimits?.[key]?.min ?? d.min;
+  const max = customLimits?.[key]?.max ?? d.max;
   if (key==="amonio"||key==="nitritos") return v===0?"ok":v<0.25?"warning":"danger";
   if (key==="nitratos") return v<=20?"ok":v<=30?"warning":"danger";
-  return v>=d.min&&v<=d.max?"ok":"danger";
+  return v>=min&&v<=max?"ok":"danger";
 }
-function useAutoAlerts(params) {
-  return PARAM_DEFS.map(p=>{
-    const st=getStatus(p.key,params[p.key]); if(st==="neutral") return null;
+function useAutoAlerts(params, customLimits) {
+  return [...PARAM_DEFS,...EXTRA_PARAM_DEFS].filter(p=>params[p.key]!==undefined).map(p=>{
+    const st=getStatus(p.key,params[p.key],customLimits); if(st==="neutral") return null;
     const v=parseFloat(params[p.key]);
     if(st==="danger") return {level:"danger",param:p,value:v};
     if(st==="warning") return {level:"warning",param:p,value:v};
@@ -100,19 +181,13 @@ function TabBar({ tabs, active, onChange, small }) {
   );
 }
 function DiscusFish({ size=36, color="#38bdf8" }) {
+  // Pez disco real sin fondo — la imagen PNG ya tiene fondo transparente
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
-      <ellipse cx="48" cy="50" rx="32" ry="36" fill={color} fillOpacity="0.18" stroke={color} strokeWidth="2.5"/>
-      <line x1="36" y1="16" x2="32" y2="84" stroke={color} strokeWidth="1.5" strokeOpacity="0.45"/>
-      <line x1="48" y1="14" x2="48" y2="86" stroke={color} strokeWidth="1.5" strokeOpacity="0.45"/>
-      <line x1="60" y1="16" x2="64" y2="84" stroke={color} strokeWidth="1.5" strokeOpacity="0.45"/>
-      <path d="M28 34 Q38 10 62 20 Q55 30 48 32 Q40 34 28 34Z" fill={color} fillOpacity="0.35" stroke={color} strokeWidth="1.5"/>
-      <path d="M30 66 Q40 88 62 80 Q55 70 48 68 Q40 66 30 66Z" fill={color} fillOpacity="0.35" stroke={color} strokeWidth="1.5"/>
-      <path d="M16 50 Q4 35 8 20 Q18 38 16 50Z" fill={color} fillOpacity="0.55" stroke={color} strokeWidth="1.5"/>
-      <path d="M16 50 Q4 65 8 80 Q18 62 16 50Z" fill={color} fillOpacity="0.55" stroke={color} strokeWidth="1.5"/>
-      <circle cx="64" cy="44" r="5" fill="#0f172a"/>
-      <circle cx="65.5" cy="42.5" r="1.5" fill="#fff" fillOpacity="0.8"/>
-    </svg>
+    <img
+      src={LOGO_FISH}
+      alt="disco"
+      style={{width:size, height:size, objectFit:"contain", display:"block", verticalAlign:"middle"}}
+    />
   );
 }
 function MiniChart({ data, color, minRef, maxRef }) {
@@ -135,44 +210,84 @@ function MiniChart({ data, color, minRef, maxRef }) {
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
-function Dashboard({ params, fish, history, reminders, expenses, photo, setPhoto, setSection }) {
+function Dashboard({ params, fish, plants, history, reminders, expenses, photo, setPhoto, aquariumName, setAquariumName, setSection }) {
   const photoRef = useRef();
   const alerts = useAutoAlerts(params);
   const dangers = alerts.filter(a=>a.level==="danger");
   const warnings = alerts.filter(a=>a.level==="warning");
   const totalFish = fish.reduce((s,f)=>s+f.cantidad,0);
+  const totalPlants = plants.length;
   const pending = reminders.filter(r=>!r.done);
   const lastMaint = history.find(h=>h.tipo==="mantenimiento");
   const lastFeed = history.find(h=>h.tipo==="alimentacion");
   const thisMonth = new Date().getMonth();
   const totalMonth = expenses.filter(e=>{ try{ const d=new Date(e.fecha); return d.getMonth()===thisMonth; } catch{ return false; } }).reduce((s,e)=>s+parseFloat(e.importe||0),0);
+  const [editingName, setEditingName] = useState(false);
+  const [tempName, setTempName] = useState(aquariumName);
   const handlePhoto = e => { const file=e.target.files[0]; if(!file) return; const r=new FileReader(); r.onload=ev=>setPhoto(ev.target.result); r.readAsDataURL(file); };
 
   return (
     <div style={{paddingBottom:80}}>
+      {/* Header acuario */}
       <div style={{borderRadius:20,margin:"0 16px 14px",position:"relative",overflow:"hidden",minHeight:180}}>
-        {photo?<img src={photo} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}}/>:<div style={{position:"absolute",inset:0,background:"linear-gradient(135deg,#0f3460,#16213e 60%,#0a1628)"}}/>}
+        {photo
+          ?<img src={photo} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}}/>
+          :<div style={{position:"absolute",inset:0,background:"linear-gradient(135deg,#0f3460,#16213e 60%,#0a1628)"}}/>
+        }
         {photo&&<div style={{position:"absolute",inset:0,background:"linear-gradient(to top,rgba(10,22,40,0.95) 35%,rgba(10,22,40,0.2) 100%)"}}/>}
-        <div style={{position:"relative",padding:"20px 18px"}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}}>
-            <div>
-              <div style={{fontSize:10,color:C.blue,fontWeight:700,letterSpacing:2,textTransform:"uppercase",marginBottom:2}}>Mi Acuario</div>
-              <div style={{fontSize:20,fontWeight:800,color:"#fff",marginBottom:1}}>Amazónico 300L</div>
-              <div style={{fontSize:11,color:"#7dd3fc"}}>Oase 300 · Ultramax 2000 · Chihiros</div>
-            </div>
-            <button onClick={()=>photoRef.current.click()} style={{background:"rgba(14,165,233,0.25)",border:"1px solid rgba(56,189,248,0.5)",borderRadius:10,padding:"7px 10px",color:"#7dd3fc",fontSize:10,fontWeight:700,cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:1}}>
-              <span style={{fontSize:16}}>📷</span><span>{photo?"Cambiar":"Foto"}</span>
-            </button>
-            <input ref={photoRef} type="file" accept="image/*" onChange={handlePhoto} style={{display:"none"}}/>
+
+        {/* Botón cámara marca de agua */}
+        <button
+          onClick={()=>photoRef.current.click()}
+          style={{position:"absolute",top:10,right:10,background:"rgba(14,165,233,0.15)",border:"1px solid rgba(56,189,248,0.25)",borderRadius:8,padding:"6px 8px",color:"rgba(125,211,252,0.6)",fontSize:16,cursor:"pointer",backdropFilter:"blur(4px)",lineHeight:1,zIndex:2}}
+          title="Cambiar foto"
+        >📷</button>
+        <input ref={photoRef} type="file" accept="image/*" onChange={handlePhoto} style={{display:"none"}}/>
+
+        <div style={{position:"relative",padding:"20px 18px",zIndex:1}}>
+          <div style={{marginBottom:14}}>
+            <div style={{fontSize:10,color:C.blue,fontWeight:700,letterSpacing:2,textTransform:"uppercase",marginBottom:4}}>Mi Acuario</div>
+            {editingName
+              ? <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                  <input
+                    value={tempName}
+                    onChange={e=>setTempName(e.target.value)}
+                    onKeyDown={e=>{if(e.key==="Enter"){setAquariumName(tempName);setEditingName(false);}if(e.key==="Escape")setEditingName(false);}}
+                    autoFocus
+                    style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(56,189,248,0.5)",borderRadius:8,padding:"4px 10px",color:"#fff",fontSize:18,fontWeight:800,outline:"none",fontFamily:"inherit",flex:1}}
+                  />
+                  <button onClick={()=>{setAquariumName(tempName);setEditingName(false);}} style={{background:"#0ea5e9",border:"none",borderRadius:8,padding:"4px 10px",color:"#fff",fontWeight:700,cursor:"pointer",fontFamily:"inherit",fontSize:13}}>✓</button>
+                </div>
+              : <div style={{display:"flex",alignItems:"center",gap:8}}>
+                  <div style={{fontSize:20,fontWeight:800,color:"#fff"}}>{aquariumName}</div>
+                  <button onClick={()=>{setTempName(aquariumName);setEditingName(true);}} style={{background:"rgba(255,255,255,0.1)",border:"none",borderRadius:6,padding:"2px 7px",color:"rgba(255,255,255,0.5)",fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>✏️</button>
+                </div>
+            }
           </div>
-          <div style={{display:"flex",gap:8}}>
-            {[{l:"Peces",v:totalFish},{l:"Plantas",v:3},{l:"Estado",v:dangers.length>0?"✗":warnings.length>0?"!":"✓",c:dangers.length>0?C.red:warnings.length>0?C.yellow:C.green}].map(it=>(
-              <div key={it.l} style={{flex:1,background:"rgba(255,255,255,0.12)",borderRadius:10,padding:"8px 10px"}}>
-                <div style={{fontSize:9,color:"#7dd3fc"}}>{it.l}</div>
-                <div style={{fontSize:20,fontWeight:800,color:it.c||"#fff"}}>{it.v}</div>
-              </div>
-            ))}
+
+
+        </div>
+      </div>
+
+      {/* Tarjetas Peces / Plantas / Estado — separadas, debajo de la foto */}
+      <div style={{display:"flex",gap:10,margin:"0 16px 12px"}}>
+        <div style={{flex:1,background:C.card,borderRadius:12,padding:"12px 14px",border:`1px solid ${C.border}33`}}>
+          <div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:4}}>🐠 PECES</div>
+          <div style={{fontSize:26,fontWeight:900,color:C.blue}}>{totalFish}</div>
+        </div>
+        <div style={{flex:1,background:C.card,borderRadius:12,padding:"12px 14px",border:`1px solid ${C.border}33`}}>
+          <div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:4}}>🌿 PLANTAS</div>
+          <div style={{fontSize:26,fontWeight:900,color:C.green}}>{totalPlants}</div>
+        </div>
+        <div
+          onClick={()=>setSection("params")}
+          style={{flex:1,background:C.card,borderRadius:12,padding:"12px 14px",cursor:"pointer",border:`1px solid ${dangers.length>0?C.red:warnings.length>0?C.yellow:C.green}44`}}
+        >
+          <div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:4}}>⚡ ESTADO</div>
+          <div style={{fontSize:26,fontWeight:900,color:dangers.length>0?C.red:warnings.length>0?C.yellow:C.green}}>
+            {dangers.length>0?"✗":warnings.length>0?"!":"✓"}
           </div>
+          <div style={{fontSize:8,color:C.muted}}>{dangers.length>0?"Ver alertas →":warnings.length>0?"Ver avisos →":"Todo OK"}</div>
         </div>
       </div>
 
@@ -211,43 +326,159 @@ function Dashboard({ params, fish, history, reminders, expenses, photo, setPhoto
   );
 }
 
+
+// ── SPARK LINE (mini gráfica inline) ──────────────────────────────────────────
+function SparkLine({ data, color, minRef, maxRef }) {
+  if(!data||data.length<2) return null;
+  const W=260, H=36, P=4;
+  const vals=data.map(d=>d.v);
+  const lo=Math.min(...vals, minRef??Infinity)*0.97;
+  const hi=Math.max(...vals, maxRef??-Infinity)*1.03;
+  const range=hi-lo||1;
+  const x=i=>P+(i/(data.length-1))*(W-P*2);
+  const y=v=>H-P-((v-lo)/range)*(H-P*2);
+  const pts=data.map((d,i)=>`${x(i)},${y(d.v)}`).join(" ");
+  const last=data[data.length-1];
+  return (
+    <div style={{borderTop:`1px solid #1a2540`,paddingTop:4,marginBottom:4}}>
+      <svg viewBox={`0 0 ${W} ${H}`} style={{width:"100%",height:36,overflow:"visible"}}>
+        {minRef!==undefined&&minRef>=lo&&minRef<=hi&&<line x1={P} y1={y(minRef)} x2={W-P} y2={y(minRef)} stroke={color} strokeDasharray="3,3" strokeOpacity="0.35" strokeWidth="1"/>}
+        {maxRef!==undefined&&maxRef>=lo&&maxRef<=hi&&<line x1={P} y1={y(maxRef)} x2={W-P} y2={y(maxRef)} stroke={color} strokeDasharray="3,3" strokeOpacity="0.35" strokeWidth="1"/>}
+        <polyline points={pts} fill="none" stroke={color} strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round" strokeOpacity="0.85"/>
+        {data.map((d,i)=><circle key={i} cx={x(i)} cy={y(d.v)} r={i===data.length-1?3.5:2} fill={color} stroke="#0f172a" strokeWidth="1.2"/>)}
+        <text x={x(data.length-1)+5} y={y(last.v)+4} fill={color} fontSize="9" fontWeight="700">{last.v}</text>
+      </svg>
+      <div style={{display:"flex",justifyContent:"space-between",fontSize:8,color:C.muted,padding:"0 4px"}}>
+        <span>{data[0].l}</span><span style={{color:color+"bb",fontSize:9}}>Últimas {data.length} mediciones</span><span>{last.l}</span>
+      </div>
+    </div>
+  );
+}
+
 // ── PARÁMETROS ────────────────────────────────────────────────────────────────
-function Params({ params, setParams, history, addHistory }) {
+function Params({ params, setParams, history, addHistory, customLimits, setCustomLimits, activeExtraParams, setActiveExtraParams }) {
   const [tab, setTab] = useState("reg");
   const [local, setLocal] = useState({...params});
   const [chartKey, setChartKey] = useState("temperatura");
-  const alerts = useAutoAlerts(local);
-  const def = PARAM_DEFS.find(p=>p.key===chartKey);
+  const [editingLimits, setEditingLimits] = useState(null);
+  const [showExtraSelector, setShowExtraSelector] = useState(false);
+  const alerts = useAutoAlerts(local, customLimits);
+
+  // Pool completo de parámetros disponibles
+  const ALL_PARAMS = [...PARAM_DEFS, ...EXTRA_PARAM_DEFS];
+  // Por defecto los 8 base están activos; el usuario puede quitar/añadir
+  const defaultActive = PARAM_DEFS.map(p=>p.key);
+  const activeKeys = activeExtraParams.length > 0 ? activeExtraParams : defaultActive;
+  const allActiveParams = ALL_PARAMS.filter(p=>activeKeys.includes(p.key));
+  const inactiveParams = ALL_PARAMS.filter(p=>!activeKeys.includes(p.key));
+
+  const def = allActiveParams.find(p=>p.key===chartKey) || PARAM_DEFS[0];
   const pHistory = history.filter(h=>h.tipo==="parametros").slice(0,30).reverse();
   const chartData = pHistory.map(h=>({l:h.fecha.slice(0,5),v:parseFloat(h.datos?.[chartKey])})).filter(d=>!isNaN(d.v));
   const save = () => { setParams(local); addHistory({tipo:"parametros",fecha:today(),datos:{...local}}); alert("✅ Parámetros guardados"); };
+
+  const getLimit = (key, which) => customLimits?.[key]?.[which] ?? (PARAM_DEFS.find(p=>p.key===key)||EXTRA_PARAM_DEFS.find(p=>p.key===key))?.[which];
+
   return (
     <div style={{paddingBottom:90}}>
       <TabBar tabs={[{id:"reg",label:"📝 Registro"},{id:"graf",label:"📈 Gráficas"},{id:"alertas",label:"🚨 Alertas"}]} active={tab} onChange={setTab} small/>
+
       {tab==="reg"&&<div style={{padding:"0 16px"}}>
+        {/* Selector de parámetros — todos pueden activarse/desactivarse */}
+        <div style={{marginBottom:12}}>
+          <button
+            onClick={()=>setShowExtraSelector(!showExtraSelector)}
+            style={{width:"100%",background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:"9px 14px",color:C.blue,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",display:"flex",justifyContent:"space-between",alignItems:"center"}}
+          >
+            <span>⚙️ Gestionar parámetros ({allActiveParams.length} activos)</span>
+            <span style={{fontSize:10,color:C.muted}}>{showExtraSelector?"▲":"▼"}</span>
+          </button>
+          {showExtraSelector&&<div style={{background:C.card,borderRadius:10,padding:12,marginTop:4,border:`1px solid ${C.border}`}}>
+            <div style={{fontSize:11,color:C.muted,marginBottom:8}}>Activa o desactiva los parámetros que quieres controlar:</div>
+            {ALL_PARAMS.map(p=>{
+              const active = activeKeys.includes(p.key);
+              return <div key={p.key} onClick={()=>{
+                if(active){
+                  // Quitar — si quedan menos de 1, no permitir
+                  if(activeKeys.length<=1) return;
+                  setActiveExtraParams(activeKeys.filter(k=>k!==p.key));
+                } else {
+                  setActiveExtraParams([...activeKeys, p.key]);
+                }
+              }} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 0",borderBottom:`1px solid #1a2540`,cursor:"pointer",opacity:active?1:0.6}}>
+                <span style={{fontSize:13,color:active?C.text:C.muted}}>{p.icon} {p.label} <span style={{fontSize:10,color:C.muted}}>({p.unit||"sin unidad"})</span></span>
+                <div style={{width:22,height:22,borderRadius:6,background:active?"#0ea5e9":C.bg,border:`2px solid ${active?"#0ea5e9":C.border}`,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                  {active&&<span style={{color:"#fff",fontSize:13,fontWeight:900}}>✓</span>}
+                </div>
+              </div>;
+            })}
+          </div>}
+        </div>
+
         {alerts.length>0&&<div style={{background:alerts.some(a=>a.level==="danger")?"#450a0a":"#422006",border:`1px solid ${alerts.some(a=>a.level==="danger")?C.red:C.orange}`,borderRadius:12,padding:"10px 14px",marginBottom:14}}><div style={{fontSize:12,fontWeight:700,color:alerts.some(a=>a.level==="danger")?C.red:C.orange,marginBottom:6}}>{alerts.some(a=>a.level==="danger")?"🚨 Valores críticos":"⚠️ Valores en atención"}</div>{alerts.map((a,i)=><div key={i} style={{fontSize:11,color:"#fca5a5",marginBottom:2}}>• {a.param.icon} {a.param.label}: {a.value} {a.param.unit}</div>)}</div>}
-        {PARAM_DEFS.map(p=>{
-          const st=getStatus(p.key,local[p.key]); const alert=alerts.find(a=>a.param.key===p.key);
+
+        {allActiveParams.map(p=>{
+          const st=getStatus(p.key,local[p.key],customLimits); const alert=alerts.find(a=>a.param.key===p.key);
+          const minVal = getLimit(p.key,"min");
+          const maxVal = getLimit(p.key,"max");
+          // Mini spark chart para este parámetro
+          const sparkData = pHistory.map(h=>({l:h.fecha.slice(0,5),v:parseFloat(h.datos?.[p.key])})).filter(d=>!isNaN(d.v)).slice(-8);
           return <div key={p.key} style={{...ss.card,border:`1px solid ${alert?(alert.level==="danger"?C.red+"55":C.orange+"55"):"transparent"}`,marginBottom:8}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:7}}>
               <div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:18}}>{p.icon}</span><div><div style={{fontSize:13,fontWeight:700,color:C.text}}>{p.label}</div><div style={{fontSize:10,color:C.muted}}>Ideal: {p.ideal} {p.unit}</div></div></div>
-              <div style={{display:"flex",alignItems:"center",gap:6}}>{alert&&<span style={{fontSize:9,background:alert.level==="danger"?C.red+"22":C.orange+"22",color:alert.level==="danger"?C.red:C.orange,border:`1px solid ${alert.level==="danger"?C.red+"44":C.orange+"44"}`,borderRadius:20,padding:"2px 7px",fontWeight:700}}>{alert.level==="danger"?"CRÍTICO":"ATENCIÓN"}</span>}<Dot status={st}/></div>
+              <div style={{display:"flex",alignItems:"center",gap:6}}>
+                {alert&&<span style={{fontSize:9,background:alert.level==="danger"?C.red+"22":C.orange+"22",color:alert.level==="danger"?C.red:C.orange,border:`1px solid ${alert.level==="danger"?C.red+"44":C.orange+"44"}`,borderRadius:20,padding:"2px 7px",fontWeight:700}}>{alert.level==="danger"?"CRÍTICO":"ATENCIÓN"}</span>}
+                <Dot status={st}/>
+              </div>
             </div>
-            <div style={{display:"flex",alignItems:"center",gap:8}}><input type="number" step="0.1" value={local[p.key]||""} onChange={e=>setLocal(l=>({...l,[p.key]:e.target.value}))} placeholder="—" style={{flex:1,background:C.bg,border:`1px solid ${alert?(alert.level==="danger"?C.red+"66":C.orange+"55"):C.border}`,borderRadius:10,padding:"9px 12px",color:C.text,fontSize:17,fontWeight:700,outline:"none",fontFamily:"inherit"}}/><span style={{color:C.muted,fontSize:13,minWidth:28}}>{p.unit}</span></div>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:sparkData.length>=2?6:8}}>
+              <input type="number" step="0.1" value={local[p.key]||""} onChange={e=>setLocal(l=>({...l,[p.key]:e.target.value}))} placeholder="—" style={{flex:1,background:C.bg,border:`1px solid ${alert?(alert.level==="danger"?C.red+"66":C.orange+"55"):C.border}`,borderRadius:10,padding:"9px 12px",color:C.text,fontSize:17,fontWeight:700,outline:"none",fontFamily:"inherit"}}/>
+              <span style={{color:C.muted,fontSize:13,minWidth:28}}>{p.unit}</span>
+            </div>
+            {sparkData.length>=2&&<SparkLine data={sparkData} color={p.color} minRef={minVal} maxRef={maxVal}/>}
+            {/* Edición de límites */}
+            <div style={{borderTop:`1px solid #1a2540`,paddingTop:8}}>
+              {editingLimits===p.key
+                ? <div>
+                    <div style={{fontSize:10,color:C.muted,marginBottom:6}}>Personalizar límites:</div>
+                    <div style={{display:"flex",gap:6,marginBottom:6}}>
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:9,color:C.muted,marginBottom:2}}>Mínimo</div>
+                        <input type="number" step="0.1" defaultValue={minVal} onBlur={e=>setCustomLimits(cl=>({...cl,[p.key]:{...cl?.[p.key],min:parseFloat(e.target.value)}}))} style={{...ss.inp,fontSize:13,padding:"6px 10px"}}/>
+                      </div>
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:9,color:C.muted,marginBottom:2}}>Máximo</div>
+                        <input type="number" step="0.1" defaultValue={maxVal} onBlur={e=>setCustomLimits(cl=>({...cl,[p.key]:{...cl?.[p.key],max:parseFloat(e.target.value)}}))} style={{...ss.inp,fontSize:13,padding:"6px 10px"}}/>
+                      </div>
+                    </div>
+                    <div style={{display:"flex",gap:6}}>
+                      <button onClick={()=>setEditingLimits(null)} style={{flex:1,background:"#0ea5e9",border:"none",borderRadius:8,padding:"6px",color:"#fff",fontWeight:700,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>✓ Guardar</button>
+                      <button onClick={()=>{setCustomLimits(cl=>{const n={...cl};delete n[p.key];return n;});setEditingLimits(null);}} style={{flex:1,background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"6px",color:C.muted,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>↺ Restablecer</button>
+                    </div>
+                  </div>
+                : <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                    <span style={{fontSize:10,color:C.muted}}>Rango: {minVal}–{maxVal} {p.unit} {customLimits?.[p.key]?"(personalizado)":""}</span>
+                    <button onClick={()=>setEditingLimits(p.key)} style={{background:"none",border:`1px solid ${C.border}`,borderRadius:6,padding:"2px 8px",color:C.muted,fontSize:10,cursor:"pointer",fontFamily:"inherit"}}>✏️ Editar</button>
+                  </div>
+              }
+            </div>
           </div>;
         })}
         <button onClick={save} style={ss.btn}>💾 Guardar parámetros</button>
       </div>}
+
       {tab==="graf"&&<div style={{padding:"0 16px"}}>
-        <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:14}}>{PARAM_DEFS.map(p=><button key={p.key} onClick={()=>setChartKey(p.key)} style={{background:chartKey===p.key?p.color+"33":C.card,border:`1px solid ${chartKey===p.key?p.color:C.border}`,borderRadius:20,padding:"4px 11px",color:chartKey===p.key?p.color:C.muted,fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>{p.icon} {p.label}</button>)}</div>
-        <div style={ss.card}><div style={{fontSize:13,fontWeight:700,color:def.color,marginBottom:2}}>{def.icon} {def.label}</div><div style={{fontSize:10,color:C.muted,marginBottom:10}}>Ideal: {def.ideal} {def.unit} · <span style={{color:def.color}}>{params[def.key]||"—"} {def.unit} actual</span></div><MiniChart data={chartData} color={def.color} minRef={def.min} maxRef={def.max}/>{chartData.slice(-4).reverse().map((d,i)=><div key={i} style={ss.row}><span style={{fontSize:11,color:C.muted}}>{d.l}</span><span style={{fontSize:12,fontWeight:700,color:def.color}}>{d.v} {def.unit}</span></div>)}</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:14}}>{allActiveParams.map(p=><button key={p.key} onClick={()=>setChartKey(p.key)} style={{background:chartKey===p.key?p.color+"33":C.card,border:`1px solid ${chartKey===p.key?p.color:C.border}`,borderRadius:20,padding:"4px 11px",color:chartKey===p.key?p.color:C.muted,fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>{p.icon} {p.label}</button>)}</div>
+        <div style={ss.card}><div style={{fontSize:13,fontWeight:700,color:def.color,marginBottom:2}}>{def.icon} {def.label}</div><div style={{fontSize:10,color:C.muted,marginBottom:10}}>Ideal: {def.ideal} {def.unit} · <span style={{color:def.color}}>{params[def.key]||"—"} {def.unit} actual</span></div><MiniChart data={chartData} color={def.color} minRef={getLimit(def.key,"min")} maxRef={getLimit(def.key,"max")}/>{chartData.slice(-4).reverse().map((d,i)=><div key={i} style={ss.row}><span style={{fontSize:11,color:C.muted}}>{d.l}</span><span style={{fontSize:12,fontWeight:700,color:def.color}}>{d.v} {def.unit}</span></div>)}</div>
       </div>}
+
       {tab==="alertas"&&<div style={{padding:"0 16px"}}>
-        {PARAM_DEFS.map(p=>{
-          const st=getStatus(p.key,params[p.key]); const stC={ok:C.green,warning:C.orange,danger:C.red,neutral:C.muted}[st]; const stL={ok:"✓ Correcto",warning:"⚠ Atención",danger:"🚨 Crítico",neutral:"— Sin datos"}[st];
+        {allActiveParams.map(p=>{
+          const st=getStatus(p.key,params[p.key],customLimits); const stC={ok:C.green,warning:C.orange,danger:C.red,neutral:C.muted}[st]; const stL={ok:"✓ Correcto",warning:"⚠ Atención",danger:"🚨 Crítico",neutral:"— Sin datos"}[st];
+          const minVal=getLimit(p.key,"min"); const maxVal=getLimit(p.key,"max");
           return <div key={p.key} style={{...ss.card,border:`1px solid ${stC}33`}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}><div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:20}}>{p.icon}</span><div><div style={{fontSize:13,fontWeight:700,color:C.text}}>{p.label}</div><div style={{fontSize:10,color:C.muted}}>Actual: <span style={{color:stC,fontWeight:700}}>{params[p.key]||"—"} {p.unit}</span></div></div></div><span style={{fontSize:10,background:stC+"22",color:stC,border:`1px solid ${stC}44`,borderRadius:20,padding:"3px 10px",fontWeight:700}}>{stL}</span></div>
-            <div style={{display:"flex",gap:8}}><div style={{flex:1,background:C.bg,borderRadius:8,padding:"6px 10px",textAlign:"center"}}><div style={{fontSize:9,color:C.muted}}>Mínimo</div><div style={{fontSize:14,fontWeight:700,color:C.blue}}>{p.min} {p.unit}</div></div><div style={{flex:1,background:"#1c2a1e",borderRadius:8,padding:"6px 10px",textAlign:"center"}}><div style={{fontSize:9,color:C.muted}}>Ideal</div><div style={{fontSize:14,fontWeight:700,color:C.green}}>{p.ideal} {p.unit}</div></div><div style={{flex:1,background:C.bg,borderRadius:8,padding:"6px 10px",textAlign:"center"}}><div style={{fontSize:9,color:C.muted}}>Máximo</div><div style={{fontSize:14,fontWeight:700,color:C.orange}}>{p.max} {p.unit}</div></div></div>
+            <div style={{display:"flex",gap:8}}><div style={{flex:1,background:C.bg,borderRadius:8,padding:"6px 10px",textAlign:"center"}}><div style={{fontSize:9,color:C.muted}}>Mínimo</div><div style={{fontSize:14,fontWeight:700,color:C.blue}}>{minVal} {p.unit}</div></div><div style={{flex:1,background:"#1c2a1e",borderRadius:8,padding:"6px 10px",textAlign:"center"}}><div style={{fontSize:9,color:C.muted}}>Ideal</div><div style={{fontSize:14,fontWeight:700,color:C.green}}>{p.ideal} {p.unit}</div></div><div style={{flex:1,background:C.bg,borderRadius:8,padding:"6px 10px",textAlign:"center"}}><div style={{fontSize:9,color:C.muted}}>Máximo</div><div style={{fontSize:14,fontWeight:700,color:C.orange}}>{maxVal} {p.unit}</div></div></div>
           </div>;
         })}
       </div>}
@@ -260,7 +491,11 @@ function Vida({ fish, setFish, plants, setPlants, gallery, setGallery }) {
   const [tab, setTab] = useState("peces");
   const [selectedFish, setSelectedFish] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [showPlantForm, setShowPlantForm] = useState(false);
   const [nf, setNf] = useState({nombre:"",especie:"",cantidad:1,emoji:"🐠",estado:"saludable",adquisicion:"",notas:"",historial:[]});
+  const [selectedCatalogFish, setSelectedCatalogFish] = useState("");
+  const [selectedCatalogPlant, setSelectedCatalogPlant] = useState("");
+  const [newPlant, setNewPlant] = useState({nombre:"",zona:"Libre",estado:"estable",cantidad:1});
   const [lightbox, setLightbox] = useState(null);
   const [newNote, setNewNote] = useState("");
   const gallRef = useRef();
@@ -283,7 +518,6 @@ function Vida({ fish, setFish, plants, setPlants, gallery, setGallery }) {
         <div style={{padding:"0 16px"}}>
           <button onClick={()=>setSelectedFish(null)} style={{background:"none",border:"none",color:C.blue,fontSize:14,cursor:"pointer",marginBottom:14,fontFamily:"inherit",display:"flex",alignItems:"center",gap:4,padding:0}}>← Volver a peces</button>
 
-          {/* Hero ficha */}
           <div style={{...ss.card,background:"linear-gradient(135deg,#0f3460,#1e293b)",marginBottom:12}}>
             <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:12}}>
               <div style={{position:"relative"}}>
@@ -302,15 +536,18 @@ function Vida({ fish, setFish, plants, setPlants, gallery, setGallery }) {
                   {dbInfo&&<span style={{fontSize:10,background:nivelColor[dbInfo.nivel]+"22",color:nivelColor[dbInfo.nivel],border:`1px solid ${nivelColor[dbInfo.nivel]}44`,borderRadius:20,padding:"2px 8px"}}>{dbInfo.nivel}</span>}
                 </div>
               </div>
-              <div style={{textAlign:"right"}}><div style={{fontSize:10,color:C.muted}}>Ejemplares</div><div style={{fontSize:28,fontWeight:900,color:C.blue}}>{selectedFish.cantidad}</div></div>
-            </div>
-            <div style={{display:"flex",gap:8}}>
-              <div style={{flex:1,background:"rgba(255,255,255,0.08)",borderRadius:10,padding:"8px 10px",textAlign:"center"}}><div style={{fontSize:9,color:C.muted}}>Estado</div><div style={{fontSize:13,fontWeight:700,color:eC[selectedFish.estado]||C.green}}>{selectedFish.estado}</div></div>
-              <div style={{flex:1,background:"rgba(255,255,255,0.08)",borderRadius:10,padding:"8px 10px",textAlign:"center"}}><div style={{fontSize:9,color:C.muted}}>Adquisición</div><div style={{fontSize:11,fontWeight:700,color:C.text}}>{selectedFish.adquisicion||"—"}</div></div>
+              {/* Contador de ejemplares con flechas */}
+              <div style={{textAlign:"center"}}>
+                <div style={{fontSize:10,color:C.muted,marginBottom:4}}>Ejemplares</div>
+                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                  <button onClick={()=>updateFishField("cantidad",Math.max(0,selectedFish.cantidad-1))} style={{width:28,height:28,background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,fontSize:16,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}}>−</button>
+                  <div style={{fontSize:26,fontWeight:900,color:C.blue,minWidth:32,textAlign:"center"}}>{selectedFish.cantidad}</div>
+                  <button onClick={()=>updateFishField("cantidad",selectedFish.cantidad+1)} style={{width:28,height:28,background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,fontSize:16,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}}>+</button>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Info DB */}
           {dbInfo&&<div style={ss.card}>
             <div style={ss.slab}>Ficha de especie</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
@@ -323,7 +560,6 @@ function Vida({ fish, setFish, plants, setPlants, gallery, setGallery }) {
             <div style={{background:C.bg,borderRadius:10,padding:"10px 12px"}}><div style={{fontSize:10,color:C.blue,fontWeight:700,marginBottom:4}}>💡 CURIOSIDADES</div><div style={{fontSize:12,color:C.text,lineHeight:1.5}}>{dbInfo.curiosidades}</div></div>
           </div>}
 
-          {/* Datos personales */}
           <div style={ss.card}>
             <div style={ss.slab}>Mis datos</div>
             <div style={{fontSize:11,color:C.muted,marginBottom:6}}>Fecha de adquisición</div>
@@ -332,7 +568,6 @@ function Vida({ fish, setFish, plants, setPlants, gallery, setGallery }) {
             <textarea value={selectedFish.notas||""} onChange={e=>updateFishField("notas",e.target.value)} placeholder="Comportamiento, características individuales, observaciones..." style={{...ss.inp,height:80,resize:"none"}} rows="3"></textarea>
           </div>
 
-          {/* Historial */}
           <div style={ss.card}>
             <div style={ss.slab}>Historial de incidencias</div>
             <div style={{display:"flex",gap:8,marginBottom:12}}>
@@ -353,6 +588,7 @@ function Vida({ fish, setFish, plants, setPlants, gallery, setGallery }) {
     <div style={{paddingBottom:90}}>
       {lightbox&&<div onClick={()=>setLightbox(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.93)",zIndex:999,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}><img src={lightbox} alt="" style={{maxWidth:"100%",maxHeight:"90vh",borderRadius:16,objectFit:"contain"}}/><button onClick={()=>setLightbox(null)} style={{position:"absolute",top:20,right:20,background:"rgba(255,255,255,0.15)",border:"none",color:"#fff",fontSize:18,borderRadius:"50%",width:38,height:38,cursor:"pointer"}}>✕</button></div>}
       <TabBar tabs={[{id:"peces",label:"🐠 Peces"},{id:"plantas",label:"🌿 Plantas"},{id:"galeria",label:"📷 Galería"}]} active={tab} onChange={setTab} small/>
+
       {tab==="peces"&&<div style={{padding:"0 16px"}}>
         <div style={{fontSize:12,color:C.muted,marginBottom:12}}>Toca cualquier pez para ver su ficha completa</div>
         {fish.map(f=>(
@@ -362,8 +598,13 @@ function Vida({ fish, setFish, plants, setPlants, gallery, setGallery }) {
                 {f.foto?<img src={f.foto} alt="" style={{width:44,height:44,borderRadius:10,objectFit:"cover"}}/>:<span style={{fontSize:36}}>{f.emoji}</span>}
                 <div><div style={{fontSize:15,fontWeight:800,color:C.text}}>{f.nombre}</div><div style={{fontSize:10,color:C.muted,fontStyle:"italic"}}>{f.especie}</div>{f.adquisicion&&<div style={{fontSize:9,color:C.muted}}>Desde {new Date(f.adquisicion).toLocaleDateString("es-ES")}</div>}</div>
               </div>
-              <div style={{textAlign:"right"}}>
-                <div style={{fontSize:22,fontWeight:900,color:C.blue}}>{f.cantidad}</div>
+              <div style={{textAlign:"right",display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6}}>
+                {/* Flechas para ajustar cantidad desde la lista */}
+                <div style={{display:"flex",alignItems:"center",gap:4}}>
+                  <button onClick={e=>{e.stopPropagation();setFish(fs=>fs.map(x=>x.id===f.id?{...x,cantidad:Math.max(0,x.cantidad-1)}:x));}} style={{width:24,height:24,background:C.bg,border:`1px solid ${C.border}`,borderRadius:6,color:C.text,fontSize:14,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}}>−</button>
+                  <span style={{fontSize:20,fontWeight:900,color:C.blue,minWidth:24,textAlign:"center"}}>{f.cantidad}</span>
+                  <button onClick={e=>{e.stopPropagation();setFish(fs=>fs.map(x=>x.id===f.id?{...x,cantidad:x.cantidad+1}:x));}} style={{width:24,height:24,background:C.bg,border:`1px solid ${C.border}`,borderRadius:6,color:C.text,fontSize:14,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}}>+</button>
+                </div>
                 <button onClick={e=>{e.stopPropagation();toggleE(f.id);}} style={{fontSize:10,background:(eC[f.estado]||C.green)+"22",color:eC[f.estado]||C.green,border:`1px solid ${(eC[f.estado]||C.green)}44`,borderRadius:20,padding:"2px 7px",cursor:"pointer",fontFamily:"inherit"}}>{f.estado}</button>
               </div>
             </div>
@@ -371,18 +612,95 @@ function Vida({ fish, setFish, plants, setPlants, gallery, setGallery }) {
             <div style={{marginTop:6,fontSize:10,color:C.blue}}>Ver ficha completa →</div>
           </div>
         ))}
+
         <button onClick={()=>setShowForm(!showForm)} style={{width:"100%",background:C.card,border:`2px dashed ${C.border}`,borderRadius:14,padding:13,color:C.blue,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>+ Añadir pez</button>
         {showForm&&<div style={{...ss.card,marginTop:10,border:`1px solid ${C.border}`}}>
-          <input value={nf.nombre} onChange={e=>setNf(n=>({...n,nombre:e.target.value}))} placeholder="Nombre común" style={{...ss.inp,marginBottom:8}}/>
-          <input value={nf.especie} onChange={e=>setNf(n=>({...n,especie:e.target.value}))} placeholder="Especie" style={{...ss.inp,marginBottom:8}}/>
-          <div style={{display:"flex",gap:8,marginBottom:8}}><input value={nf.cantidad} type="number" min="1" onChange={e=>setNf(n=>({...n,cantidad:parseInt(e.target.value)}))} style={{...ss.inp,flex:1}} placeholder="Cantidad"/><input value={nf.emoji} onChange={e=>setNf(n=>({...n,emoji:e.target.value}))} style={{...ss.inp,flex:1}} placeholder="Emoji"/></div>
-          <button onClick={()=>{if(!nf.nombre)return;setFish(f=>[...f,{...nf,id:Date.now()}]);setShowForm(false);setNf({nombre:"",especie:"",cantidad:1,emoji:"🐠",estado:"saludable",adquisicion:"",notas:"",historial:[]});}} style={ss.btn}>Guardar</button>
+          <div style={{fontSize:11,color:C.muted,marginBottom:6}}>Seleccionar pez del catálogo:</div>
+          <select
+            value={selectedCatalogFish}
+            onChange={e=>{
+              const sel=e.target.value;
+              setSelectedCatalogFish(sel);
+              if(sel&&sel!=="custom"){
+                const found=FISH_CATALOG.find(f=>f.especie===sel);
+                if(found) setNf(n=>({...n,nombre:found.nombre,especie:found.especie,emoji:found.emoji}));
+              } else if(sel==="custom"){
+                setNf(n=>({...n,nombre:"",especie:"",emoji:"🐠"}));
+              }
+            }}
+            style={{...ss.inp,marginBottom:8}}
+          >
+            <option value="">— Elige un pez —</option>
+            {FISH_CATALOG.map((f,i)=><option key={i} value={f.especie||"custom"}>{f.nombre} {f.especie?"("+f.especie+")":""}</option>)}
+          </select>
+          {(selectedCatalogFish==="custom"||selectedCatalogFish===""||FISH_CATALOG.find(f=>f.especie===selectedCatalogFish)?.nombre==="Otro (personalizado)")&&<>
+            <input value={nf.nombre} onChange={e=>setNf(n=>({...n,nombre:e.target.value}))} placeholder="Nombre común" style={{...ss.inp,marginBottom:8}}/>
+            <input value={nf.especie} onChange={e=>setNf(n=>({...n,especie:e.target.value}))} placeholder="Especie (nombre científico)" style={{...ss.inp,marginBottom:8}}/>
+            <input value={nf.emoji} onChange={e=>setNf(n=>({...n,emoji:e.target.value}))} placeholder="Emoji" style={{...ss.inp,marginBottom:8}}/>
+          </>}
+          <div style={{display:"flex",gap:8,marginBottom:8}}>
+            <input value={nf.cantidad} type="number" min="1" onChange={e=>setNf(n=>({...n,cantidad:parseInt(e.target.value)}))} style={{...ss.inp,flex:1}} placeholder="Cantidad"/>
+          </div>
+          <button onClick={()=>{if(!nf.nombre)return;setFish(f=>[...f,{...nf,id:Date.now()}]);setShowForm(false);setSelectedCatalogFish("");setNf({nombre:"",especie:"",cantidad:1,emoji:"🐠",estado:"saludable",adquisicion:"",notas:"",historial:[]});}} style={ss.btn}>Guardar</button>
         </div>}
       </div>}
+
       {tab==="plantas"&&<div style={{padding:"0 16px"}}>
-        {plants.map(p=><div key={p.id} style={{...ss.card,display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{fontSize:14,fontWeight:700,color:C.text}}>🌿 {p.nombre}</div><div style={{fontSize:11,color:C.muted}}>Zona: {p.zona}</div></div><span style={{fontSize:10,background:pC[p.estado]+"22",color:pC[p.estado],border:`1px solid ${pC[p.estado]}44`,borderRadius:20,padding:"3px 9px"}}>{p.estado}</span></div>)}
-        <button onClick={()=>setPlants(pl=>[...pl,{id:Date.now(),nombre:"Nueva planta",zona:"Libre",estado:"estable"}])} style={{width:"100%",background:C.card,border:`2px dashed ${C.border}`,borderRadius:14,padding:13,color:C.green,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>+ Añadir planta</button>
+        {plants.map(p=>(
+          <div key={p.id} style={{...ss.card,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div style={{flex:1}}>
+              <div style={{fontSize:14,fontWeight:700,color:C.text}}>🌿 {p.nombre}</div>
+              <div style={{fontSize:11,color:C.muted}}>Zona: {p.zona}</div>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              {/* Flechas cantidad planta */}
+              <div style={{display:"flex",alignItems:"center",gap:4}}>
+                <button onClick={()=>setPlants(ps=>ps.map(x=>x.id===p.id?{...x,cantidad:Math.max(0,x.cantidad-1)}:x))} style={{width:22,height:22,background:C.bg,border:`1px solid ${C.border}`,borderRadius:6,color:C.text,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}}>−</button>
+                <span style={{fontSize:14,fontWeight:700,color:C.green,minWidth:20,textAlign:"center"}}>{p.cantidad||1}</span>
+                <button onClick={()=>setPlants(ps=>ps.map(x=>x.id===p.id?{...x,cantidad:(x.cantidad||1)+1}:x))} style={{width:22,height:22,background:C.bg,border:`1px solid ${C.border}`,borderRadius:6,color:C.text,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}}>+</button>
+              </div>
+              <span
+                onClick={()=>setPlants(ps=>{const estados=["creciendo","estable","deteriorando"];return ps.map(x=>x.id===p.id?{...x,estado:estados[(estados.indexOf(x.estado)+1)%estados.length]}:x);})}
+                style={{fontSize:10,background:pC[p.estado]+"22",color:pC[p.estado],border:`1px solid ${pC[p.estado]}44`,borderRadius:20,padding:"3px 9px",cursor:"pointer"}}
+              >{p.estado}</span>
+              <button onClick={()=>setPlants(ps=>ps.filter(x=>x.id!==p.id))} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:14,fontFamily:"inherit"}}>✕</button>
+            </div>
+          </div>
+        ))}
+
+        <button onClick={()=>setShowPlantForm(!showPlantForm)} style={{width:"100%",background:C.card,border:`2px dashed ${C.border}`,borderRadius:14,padding:13,color:C.green,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>+ Añadir planta</button>
+        {showPlantForm&&<div style={{...ss.card,marginTop:10,border:`1px solid ${C.border}`}}>
+          <div style={{fontSize:11,color:C.muted,marginBottom:6}}>Seleccionar planta del catálogo:</div>
+          <select
+            value={selectedCatalogPlant}
+            onChange={e=>{
+              const sel=e.target.value;
+              setSelectedCatalogPlant(sel);
+              if(sel&&sel!=="custom"){
+                const found=PLANT_CATALOG.find(p=>p.nombre===sel);
+                if(found) setNewPlant(n=>({...n,nombre:found.nombre,zona:found.zona}));
+              } else {
+                setNewPlant(n=>({...n,nombre:"",zona:"Libre"}));
+              }
+            }}
+            style={{...ss.inp,marginBottom:8}}
+          >
+            <option value="">— Elige una planta —</option>
+            {PLANT_CATALOG.map((p,i)=><option key={i} value={p.nombre}>{p.nombre} ({p.zona})</option>)}
+          </select>
+          {(selectedCatalogPlant===""||selectedCatalogPlant==="Otra (personalizada)")&&<>
+            <input value={newPlant.nombre} onChange={e=>setNewPlant(n=>({...n,nombre:e.target.value}))} placeholder="Nombre de la planta" style={{...ss.inp,marginBottom:8}}/>
+            <input value={newPlant.zona} onChange={e=>setNewPlant(n=>({...n,zona:e.target.value}))} placeholder="Zona (Fondo, Medio, Bajo...)" style={{...ss.inp,marginBottom:8}}/>
+          </>}
+          <button onClick={()=>{
+            const nombre=newPlant.nombre||selectedCatalogPlant;
+            if(!nombre||nombre==="Otra (personalizada)")return;
+            setPlants(ps=>[...ps,{id:Date.now(),nombre,zona:newPlant.zona||"Libre",estado:"estable",cantidad:1}]);
+            setShowPlantForm(false);setSelectedCatalogPlant("");setNewPlant({nombre:"",zona:"Libre",estado:"estable",cantidad:1});
+          }} style={{...ss.btn,background:"linear-gradient(135deg,#059669,#4ade80)"}}>🌿 Añadir planta</button>
+        </div>}
       </div>}
+
       {tab==="galeria"&&<div style={{padding:"0 16px"}}>
         <button onClick={()=>gallRef.current.click()} style={{...ss.btn,marginBottom:14}}>📷 Añadir foto(s)</button>
         <input ref={gallRef} type="file" accept="image/*" multiple onChange={addGallery} style={{display:"none"}}/>
@@ -408,7 +726,6 @@ function WaterChart({ cambios }) {
   const y = v => H-P - (v/maxV)*(H-P*2);
   const pts = data.map((d,i)=>`${x(i)},${y(d.pct)}`).join(" ");
   const area = `${x(0)},${H-P} ${pts} ${x(data.length-1)},${H-P}`;
-  // línea recomendada 30%
   const refY = y(30);
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{width:"100%",overflow:"visible"}}>
@@ -418,24 +735,19 @@ function WaterChart({ cambios }) {
           <stop offset="100%" stopColor={C.blue} stopOpacity="0"/>
         </linearGradient>
       </defs>
-      {/* línea referencia 30% */}
       <line x1={P} y1={refY} x2={W-P} y2={refY} stroke={C.green} strokeDasharray="4,4" strokeOpacity="0.5" strokeWidth="1.5"/>
       <text x={W-P+2} y={refY+4} fill={C.green} fontSize="8" opacity="0.7">30%</text>
-      {/* barras de fondo */}
       {data.map((d,i)=>(
         <rect key={i} x={x(i)-6} y={y(d.pct)} width={12} height={H-P-y(d.pct)} fill={C.blue} fillOpacity="0.15" rx="3"/>
       ))}
-      {/* área y línea */}
       <polygon points={area} fill="url(#wg)"/>
       <polyline points={pts} fill="none" stroke={C.blue} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round"/>
-      {/* puntos */}
       {data.map((d,i)=>(
         <g key={i}>
           <circle cx={x(i)} cy={y(d.pct)} r="5" fill={d.pct>=25?C.green:d.pct>=15?C.yellow:C.red} stroke="#0f172a" strokeWidth="2"/>
           <text x={x(i)} y={y(d.pct)-8} textAnchor="middle" fill={C.text} fontSize="8" fontWeight="600">{d.pct}%</text>
         </g>
       ))}
-      {/* etiquetas fecha */}
       {data.filter((_,i)=>i%Math.ceil(data.length/5)===0).map((d,i)=>(
         <text key={i} x={x(data.indexOf(d))} y={H-2} textAnchor="middle" fill={C.muted} fontSize="8">{d.fecha.slice(0,5)}</text>
       ))}
@@ -444,14 +756,22 @@ function WaterChart({ cambios }) {
 }
 
 // ── EXTRAS ────────────────────────────────────────────────────────────────────
-function Extras({ addHistory, history, reminders, setReminders }) {
+function Extras({ addHistory, history, reminders, setReminders, equipo, setEquipo, mantTasks, setMantTasks }) {
   const [tab, setTab] = useState("rem");
   const [mantTab, setMantTab] = useState("registro");
-  const [feedType, setFeedType] = useState("Gránulos"); const [feedQty, setFeedQty] = useState("normal"); const [feedNota, setFeedNota] = useState("");
+  const [feedType, setFeedType] = useState("Gránulos");
+  const [feedQty, setFeedQty] = useState("normal");
+  const [feedNota, setFeedNota] = useState("");
   const [tr, setTr] = useState({pez:"",enf:"",med:"",dosis:"",notas:"",fecha:toISO()});
-  const [mnt, setMnt] = useState({fecha:toISO(),pct:"",notas:"",tareas:Object.fromEntries(Object.keys(MANT_TASKS).map(k=>[k,false]))});
-  const [newRem, setNewRem] = useState({titulo:"",fecha:"",repetir:"nunca",cat:"general"});
+  const [mnt, setMnt] = useState({fecha:toISO(),pct:"",notas:"",tareas:Object.fromEntries(Object.keys(mantTasks).map(k=>[k,false]))});
+  const [newRem, setNewRem] = useState({titulo:"",fecha:"",hora:"",repetir:"nunca",cat:"general"});
+  const [showExtraTasks, setShowExtraTasks] = useState(false);
+  const [customTaskInput, setCustomTaskInput] = useState("");
+  const [showAddEquipo, setShowAddEquipo] = useState(false);
+  const [newEquipoName, setNewEquipoName] = useState("");
   const remColors={general:C.blue,medicacion:C.red,agua:C.green,alimentacion:C.orange};
+  const equipoEstados = ["activo","inactivo","avería"];
+  const equipoEstadoColor = {activo:C.green,inactivo:C.muted,avería:C.red};
 
   // Datos de cambios de agua
   const cambiosAgua = history
@@ -463,6 +783,22 @@ function Extras({ addHistory, history, reminders, setReminders }) {
   const ultimoCambio = cambiosAgua[0];
   const diasDesdeUltimo = ultimoCambio ? Math.floor((new Date()-new Date(ultimoCambio.fecha.includes("/")?ultimoCambio.fecha.split("/").reverse().join("-"):ultimoCambio.fecha))/(1000*60*60*24)) : null;
 
+  // Añadir tarea personalizada al mantenimiento
+  const addCustomTask = () => {
+    if(!customTaskInput.trim()) return;
+    const key = "custom_"+Date.now();
+    setMantTasks(prev=>({...prev,[key]:customTaskInput.trim()}));
+    setMnt(m=>({...m,tareas:{...m.tareas,[key]:false}}));
+    setCustomTaskInput("");
+  };
+
+  const addExtraTask = (label) => {
+    const key = "extra_"+label.replace(/[^a-zA-Z0-9]/g,"");
+    if(mantTasks[key]) return;
+    setMantTasks(prev=>({...prev,[key]:label}));
+    setMnt(m=>({...m,tareas:{...m.tareas,[key]:false}}));
+  };
+
   return (
     <div style={{paddingBottom:90}}>
       <TabBar tabs={[{id:"rem",label:"🔔 Rec."},{id:"ali",label:"🍽️ Com."},{id:"tra",label:"💊 Trat."},{id:"man",label:"🔧 Mant."}]} active={tab} onChange={setTab} small/>
@@ -471,12 +807,32 @@ function Extras({ addHistory, history, reminders, setReminders }) {
         <div style={ss.card}>
           <div style={ss.slab}>Nuevo recordatorio</div>
           <input value={newRem.titulo} onChange={e=>setNewRem(r=>({...r,titulo:e.target.value}))} placeholder="Ej: Cambio de agua semanal" style={{...ss.inp,marginBottom:8}}/>
-          <input type="date" value={newRem.fecha} onChange={e=>setNewRem(r=>({...r,fecha:e.target.value}))} style={{...ss.inp,marginBottom:8}}/>
+          <div style={{display:"flex",gap:8,marginBottom:8}}>
+            <div style={{flex:1}}>
+              <div style={{fontSize:10,color:C.muted,marginBottom:4}}>Fecha</div>
+              <input type="date" value={newRem.fecha} onChange={e=>setNewRem(r=>({...r,fecha:e.target.value}))} style={ss.inp}/>
+            </div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:10,color:C.muted,marginBottom:4}}>Hora</div>
+              <input type="time" value={newRem.hora} onChange={e=>setNewRem(r=>({...r,hora:e.target.value}))} style={ss.inp}/>
+            </div>
+          </div>
           <div style={{display:"flex",gap:6,marginBottom:8}}>{["general","agua","medicacion","alimentacion"].map(c=><button key={c} onClick={()=>setNewRem(r=>({...r,cat:c}))} style={{flex:1,background:newRem.cat===c?remColors[c]+"33":C.bg,border:`1px solid ${newRem.cat===c?remColors[c]:C.border}`,borderRadius:8,padding:"6px 2px",color:newRem.cat===c?remColors[c]:C.muted,fontSize:9,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>{c}</button>)}</div>
           <select value={newRem.repetir} onChange={e=>setNewRem(r=>({...r,repetir:e.target.value}))} style={{...ss.inp,marginBottom:10,fontSize:13}}><option value="nunca">Sin repetición</option><option value="diario">Diario</option><option value="semanal">Semanal</option><option value="mensual">Mensual</option></select>
-          <button onClick={()=>{if(!newRem.titulo)return;setReminders(r=>[...r,{...newRem,id:Date.now(),done:false}]);setNewRem({titulo:"",fecha:"",repetir:"nunca",cat:"general"});}} style={ss.btn}>🔔 Añadir</button>
+          <button onClick={()=>{if(!newRem.titulo)return;setReminders(r=>[...r,{...newRem,id:Date.now(),done:false}]);setNewRem({titulo:"",fecha:"",hora:"",repetir:"nunca",cat:"general"});}} style={ss.btn}>🔔 Añadir</button>
         </div>
-        {reminders.filter(r=>!r.done).map(r=><div key={r.id} style={{...ss.card,border:`1px solid ${remColors[r.cat]||C.border}33`,display:"flex",alignItems:"center",gap:10}}><div style={{flex:1}}><div style={{fontSize:13,fontWeight:700,color:C.text}}>{r.titulo}</div><div style={{fontSize:10,color:C.muted}}>{r.fecha&&`📅 ${r.fecha}`}{r.repetir!=="nunca"&&` · 🔁 ${r.repetir}`}</div></div><button onClick={()=>setReminders(rem=>rem.map(x=>x.id===r.id?{...x,done:true}:x))} style={{background:"#1c2a1e",border:`1px solid ${C.green}`,borderRadius:8,padding:"5px 9px",color:C.green,fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>✓</button><button onClick={()=>setReminders(rem=>rem.filter(x=>x.id!==r.id))} style={{background:"#2a1e1e",border:`1px solid ${C.red}`,borderRadius:8,padding:"5px 9px",color:C.red,fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>✕</button></div>)}
+        {reminders.filter(r=>!r.done).map(r=><div key={r.id} style={{...ss.card,border:`1px solid ${remColors[r.cat]||C.border}33`,display:"flex",alignItems:"center",gap:10}}>
+          <div style={{flex:1}}>
+            <div style={{fontSize:13,fontWeight:700,color:C.text}}>{r.titulo}</div>
+            <div style={{fontSize:10,color:C.muted}}>
+              {r.fecha&&`📅 ${r.fecha}`}
+              {r.hora&&` 🕐 ${r.hora}`}
+              {r.repetir!=="nunca"&&` · 🔁 ${r.repetir}`}
+            </div>
+          </div>
+          <button onClick={()=>setReminders(rem=>rem.map(x=>x.id===r.id?{...x,done:true}:x))} style={{background:"#1c2a1e",border:`1px solid ${C.green}`,borderRadius:8,padding:"5px 9px",color:C.green,fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>✓</button>
+          <button onClick={()=>setReminders(rem=>rem.filter(x=>x.id!==r.id))} style={{background:"#2a1e1e",border:`1px solid ${C.red}`,borderRadius:8,padding:"5px 9px",color:C.red,fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>✕</button>
+        </div>)}
       </div>}
 
       {tab==="ali"&&<div style={{padding:"0 16px"}}>
@@ -497,7 +853,6 @@ function Extras({ addHistory, history, reminders, setReminders }) {
       </div>}
 
       {tab==="man"&&<div style={{padding:"0 16px"}}>
-        {/* Sub-tabs mantenimiento */}
         <div style={{display:"flex",background:"#162032",borderRadius:10,padding:3,gap:3,marginBottom:14}}>
           {[{id:"registro",label:"📝 Registro"},{id:"historial",label:"🔄 Historial agua"}].map(t=>(
             <button key={t.id} onClick={()=>setMantTab(t.id)} style={{flex:1,background:mantTab===t.id?"#0ea5e9":"transparent",border:"none",borderRadius:8,padding:"8px 4px",color:mantTab===t.id?"#fff":C.muted,fontWeight:700,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>{t.label}</button>
@@ -506,15 +861,79 @@ function Extras({ addHistory, history, reminders, setReminders }) {
 
         {mantTab==="registro"&&<>
           <div style={ss.card}><div style={{fontSize:11,color:C.muted,marginBottom:6}}>Fecha</div><input type="date" value={mnt.fecha} onChange={e=>setMnt(m=>({...m,fecha:e.target.value}))} style={ss.inp}/></div>
-          <div style={ss.card}><div style={ss.slab}>Tareas realizadas</div>{Object.entries(MANT_TASKS).map(([k,label])=><div key={k} onClick={()=>setMnt(m=>({...m,tareas:{...m.tareas,[k]:!m.tareas[k]}}))} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 0",borderBottom:`1px solid #1a2540`,cursor:"pointer"}}><span style={{fontSize:13,color:mnt.tareas[k]?C.text:C.muted}}>{label}</span><div style={{width:22,height:22,borderRadius:6,background:mnt.tareas[k]?"#0ea5e9":C.bg,border:`2px solid ${mnt.tareas[k]?"#0ea5e9":C.border}`,display:"flex",alignItems:"center",justifyContent:"center"}}>{mnt.tareas[k]&&<span style={{color:"#fff",fontSize:13,fontWeight:900}}>✓</span>}</div></div>)}</div>
+
+          <div style={ss.card}>
+            <div style={ss.slab}>Tareas realizadas</div>
+            {Object.entries(mantTasks).map(([k,label])=>(
+              <div key={k} onClick={()=>setMnt(m=>({...m,tareas:{...m.tareas,[k]:!m.tareas[k]}}))} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 0",borderBottom:`1px solid #1a2540`,cursor:"pointer"}}>
+                <span style={{fontSize:13,color:mnt.tareas[k]?C.text:C.muted}}>{label}</span>
+                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                  {k.startsWith("custom_")||k.startsWith("extra_")?
+                    <button onClick={e=>{e.stopPropagation();setMantTasks(prev=>{const n={...prev};delete n[k];return n;});setMnt(m=>{const t={...m.tareas};delete t[k];return{...m,tareas:t};});}} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>✕</button>:null}
+                  <div style={{width:22,height:22,borderRadius:6,background:mnt.tareas[k]?"#0ea5e9":C.bg,border:`2px solid ${mnt.tareas[k]?"#0ea5e9":C.border}`,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                    {mnt.tareas[k]&&<span style={{color:"#fff",fontSize:13,fontWeight:900}}>✓</span>}
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {/* Botón añadir tareas extra */}
+            <div style={{marginTop:12}}>
+              <button onClick={()=>setShowExtraTasks(!showExtraTasks)} style={{width:"100%",background:C.bg,border:`1px dashed ${C.border}`,borderRadius:8,padding:"8px",color:C.blue,fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                {showExtraTasks?"▲ Ocultar":"➕ Más tareas de mantenimiento"}
+              </button>
+              {showExtraTasks&&<div style={{marginTop:8}}>
+                <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}}>
+                  {MANT_TASKS_EXTRA.filter(t=>!Object.values(mantTasks).includes(t)).map((t,i)=>(
+                    <button key={i} onClick={()=>addExtraTask(t)} style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,padding:"5px 10px",color:C.muted,fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>{t}</button>
+                  ))}
+                </div>
+                <div style={{display:"flex",gap:6}}>
+                  <input value={customTaskInput} onChange={e=>setCustomTaskInput(e.target.value)} placeholder="Tarea personalizada..." style={{...ss.inp,flex:1,fontSize:12,padding:"8px 12px"}} onKeyDown={e=>e.key==="Enter"&&addCustomTask()}/>
+                  <button onClick={addCustomTask} style={{background:"#0ea5e9",border:"none",borderRadius:8,padding:"8px 14px",color:"#fff",fontWeight:800,fontSize:14,cursor:"pointer",fontFamily:"inherit"}}>+</button>
+                </div>
+              </div>}
+            </div>
+          </div>
+
           {mnt.tareas.agua&&<div style={ss.card}><div style={{fontSize:11,color:C.muted,marginBottom:6}}>% agua cambiada</div><input type="number" min="0" max="100" value={mnt.pct} onChange={e=>setMnt(m=>({...m,pct:e.target.value}))} placeholder="ej: 30" style={ss.inp}/></div>}
           <div style={ss.card}><textarea value={mnt.notas} onChange={e=>setMnt(m=>({...m,notas:e.target.value}))} placeholder="Observaciones..." style={{...ss.inp,height:60,resize:"none"}}></textarea></div>
-          <div style={ss.card}><div style={ss.slab}>🔧 Equipo</div>{EQUIPO.map(eq=><div key={eq} style={ss.row}><span style={{fontSize:12,color:C.sub}}>{eq}</span><span style={{fontSize:10,color:C.green}}>● activo</span></div>)}</div>
-          <button onClick={()=>{addHistory({tipo:"mantenimiento",fecha:mnt.fecha,tareas:{...mnt.tareas},porcentaje:mnt.pct,notas:mnt.notas});setMnt(m=>({...m,notas:"",pct:"",tareas:Object.fromEntries(Object.keys(MANT_TASKS).map(k=>[k,false]))}));alert("✅ Registrado");}} style={ss.btn}>💾 Guardar mantenimiento</button>
+
+          {/* Sección equipo editable */}
+          <div style={ss.card}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+              <div style={ss.slab}>🔧 Equipo</div>
+              <button onClick={()=>setShowAddEquipo(!showAddEquipo)} style={{background:"none",border:`1px solid ${C.border}`,borderRadius:8,padding:"3px 10px",color:C.blue,fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>+ Añadir</button>
+            </div>
+            {equipo.map(eq=>(
+              <div key={eq.id} style={{display:"flex",alignItems:"center",gap:8,padding:"7px 0",borderBottom:`1px solid #1a2540`}}>
+                <div style={{flex:1,fontSize:12,color:C.text}}>{eq.nombre}</div>
+                <button
+                  onClick={()=>{
+                    const estados=equipoEstados;
+                    setEquipo(prev=>prev.map(x=>x.id===eq.id?{...x,estado:estados[(estados.indexOf(x.estado)+1)%estados.length]}:x));
+                  }}
+                  style={{fontSize:10,background:equipoEstadoColor[eq.estado]+"22",color:equipoEstadoColor[eq.estado],border:`1px solid ${equipoEstadoColor[eq.estado]}44`,borderRadius:20,padding:"2px 8px",cursor:"pointer",fontFamily:"inherit"}}
+                >● {eq.estado}</button>
+                <button onClick={()=>setEquipo(prev=>prev.filter(x=>x.id!==eq.id))} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:13,fontFamily:"inherit"}}>✕</button>
+              </div>
+            ))}
+            {showAddEquipo&&<div style={{marginTop:10,display:"flex",gap:6}}>
+              <input value={newEquipoName} onChange={e=>setNewEquipoName(e.target.value)} placeholder="Nombre del equipo..." style={{...ss.inp,flex:1,fontSize:12,padding:"8px 12px"}} onKeyDown={e=>e.key==="Enter"&&newEquipoName.trim()&&(setEquipo(prev=>[...prev,{id:Date.now(),nombre:newEquipoName.trim(),estado:"activo"}]),setNewEquipoName(""),setShowAddEquipo(false))}/>
+              <button onClick={()=>{if(!newEquipoName.trim())return;setEquipo(prev=>[...prev,{id:Date.now(),nombre:newEquipoName.trim(),estado:"activo"}]);setNewEquipoName("");setShowAddEquipo(false);}} style={{background:"#0ea5e9",border:"none",borderRadius:8,padding:"8px 14px",color:"#fff",fontWeight:800,fontSize:14,cursor:"pointer",fontFamily:"inherit"}}>+</button>
+            </div>}
+          </div>
+
+          <button onClick={()=>{
+            // Registrar con las tareas concretas en el texto
+            const tareasRealizadas = Object.entries(mnt.tareas).filter(([,v])=>v).map(([k])=>mantTasks[k]||k).join(", ");
+            addHistory({tipo:"mantenimiento",fecha:mnt.fecha,tareas:{...mnt.tareas},tareasTexto:tareasRealizadas,porcentaje:mnt.pct,notas:mnt.notas});
+            setMnt(m=>({...m,notas:"",pct:"",tareas:Object.fromEntries(Object.keys(mantTasks).map(k=>[k,false]))}));
+            alert("✅ Registrado");
+          }} style={ss.btn}>💾 Guardar mantenimiento</button>
         </>}
 
         {mantTab==="historial"&&<>
-          {/* Estadísticas */}
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
             <div style={{...ss.card,marginBottom:0,background:"linear-gradient(135deg,#0c2340,#1e293b)",border:`1px solid ${C.blue}33`}}>
               <div style={{fontSize:10,color:C.blue,fontWeight:700,marginBottom:2}}>TOTAL CAMBIOS</div>
@@ -537,7 +956,6 @@ function Extras({ addHistory, history, reminders, setReminders }) {
             </div>
           </div>
 
-          {/* Gráfica */}
           <div style={ss.card}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
               <div style={{fontSize:13,fontWeight:700,color:C.blue}}>🔄 Evolución cambios de agua</div>
@@ -552,7 +970,6 @@ function Extras({ addHistory, history, reminders, setReminders }) {
             </div>
           </div>
 
-          {/* Lista historial */}
           <div style={ss.card}>
             <div style={ss.slab}>Todos los cambios</div>
             {cambiosAgua.length===0
@@ -579,7 +996,7 @@ function Extras({ addHistory, history, reminders, setReminders }) {
 }
 
 // ── IA + INFORME + GASTOS + CALENDARIO ────────────────────────────────────────
-function IA({ params, fish, history, expenses, setExpenses, reminders }) {
+function IA({ params, fish, history, expenses, setExpenses, reminders, mantTasks }) {
   const [tab, setTab] = useState("chat");
   const [msgs, setMsgs] = useState([{role:"assistant",text:"¡Hola! 🐠 Soy tu asistente de acuariofilia. Conozco tu acuario amazónico de 300L con discos, ramirezi, neones, corydoras y ancistrus.\n\nPregúntame sobre parámetros, enfermedades, plantas o cualquier duda."}]);
   const [input, setInput] = useState(""); const [loading, setLoading] = useState(false);
@@ -592,7 +1009,6 @@ function IA({ params, fish, history, expenses, setExpenses, reminders }) {
 
   useEffect(()=>{endRef.current?.scrollIntoView({behavior:"smooth"});},[msgs]);
 
-  // ── Informe mensual
   const generateReport = (month, year) => {
     const isInMonth = (fechaStr) => { try { const d = new Date(fechaStr.includes("/")?fechaStr.split("/").reverse().join("-"):fechaStr); return d.getMonth()===month&&d.getFullYear()===year; } catch { return false; } };
     const mHistory = history.filter(h=>isInMonth(h.fecha));
@@ -603,8 +1019,8 @@ function IA({ params, fish, history, expenses, setExpenses, reminders }) {
     const mExp = expenses.filter(e=>isInMonth(e.fecha));
     const prevMonth = month===0?11:month-1;
     const prevYear = month===0?year-1:year;
-    const prevExp = expenses.filter(e=>isInMonth2(e.fecha,prevMonth,prevYear));
     function isInMonth2(fechaStr,m,y){ try{const d=new Date(fechaStr.includes("/")?fechaStr.split("/").reverse().join("-"):fechaStr);return d.getMonth()===m&&d.getFullYear()===y;}catch{return false;} }
+    const prevExp = expenses.filter(e=>isInMonth2(e.fecha,prevMonth,prevYear));
     const totalExp = mExp.reduce((s,e)=>s+parseFloat(e.importe||0),0);
     const prevTotalExp = prevExp.reduce((s,e)=>s+parseFloat(e.importe||0),0);
     const paramStats = PARAM_DEFS.map(p=>{
@@ -621,7 +1037,6 @@ function IA({ params, fish, history, expenses, setExpenses, reminders }) {
 
   const report = generateReport(reportMonth, reportYear);
 
-  // ── Calendario
   const year=calDate.getFullYear(), month=calDate.getMonth();
   const firstDay=(new Date(year,month,1).getDay()+6)%7;
   const daysInMonth=new Date(year,month+1,0).getDate();
@@ -629,26 +1044,55 @@ function IA({ params, fish, history, expenses, setExpenses, reminders }) {
   const allEvents=[...history,...reminders.map(r=>({...r,tipo:"recordatorio",fecha:r.fecha})),...expenses.map(e=>({...e,tipo:"gasto"}))];
   const getEventsForDay=day=>{const ds=`${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;return allEvents.filter(e=>{try{const d=new Date(e.fecha?.includes("/")?e.fecha.split("/").reverse().join("-"):e.fecha);return d.getDate()===day&&d.getMonth()===month&&d.getFullYear()===year;}catch{return false;}});};
 
-  // ── Gastos
   const filteredExp=expFilter==="all"?expenses:expenses.filter(e=>e.categoria===expFilter);
   const totalAll=expenses.reduce((s,e)=>s+parseFloat(e.importe||0),0);
   const thisMonthExp=expenses.filter(e=>{try{const d=new Date(e.fecha);return d.getMonth()===new Date().getMonth()&&d.getFullYear()===new Date().getFullYear();}catch{return false;}});
   const totalMonth=thisMonthExp.reduce((s,e)=>s+parseFloat(e.importe||0),0);
 
-  // ── Chat
   const ctx=()=>{const lp=history.find(h=>h.tipo==="parametros");const ps=lp?PARAM_DEFS.map(p=>`${p.label}: ${lp.datos?.[p.key]||"sin dato"} ${p.unit}`).join(", "):"sin registros";return `Eres experto en acuariofilia tropical, especialmente discos (Symphysodon). Acuario amazónico 300L, filtros Oase 300 + Ultramax 2000, calentador Chihiros, CO2. Peces: 8 discos, 6 ramirezi, 8 neones, 9 corydoras, 4 ancistrus. Plantas: rótalas, criptocorinas, Tenellum. Parámetros: ${ps}. Responde en español, conciso, máx 3 párrafos.`;};
-  const send=async(text)=>{const msg=text||input.trim();if(!msg)return;setInput("");setLoading(true);const newMsgs=[...msgs,{role:"user",text:msg}];setMsgs([...newMsgs,{role:"assistant",text:"•••"}]);try{const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,system:ctx(),messages:newMsgs.map(m=>({role:m.role,content:m.text}))})});const data=await res.json();setMsgs([...newMsgs,{role:"assistant",text:data.content?.[0]?.text||"Sin respuesta."}]);}catch{setMsgs([...newMsgs,{role:"assistant",text:"❌ Error de conexión."}]);}setLoading(false);};
+
+  const send=async(text)=>{
+    const msg=text||input.trim();
+    if(!msg)return;
+    setInput("");
+    setLoading(true);
+    const newMsgs=[...msgs,{role:"user",text:msg}];
+    setMsgs([...newMsgs,{role:"assistant",text:"•••"}]);
+    try{
+      const res=await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-access":"true"},
+        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,system:ctx(),messages:newMsgs.map(m=>({role:m.role,content:m.text}))})
+      });
+      const data=await res.json();
+      setMsgs([...newMsgs,{role:"assistant",text:data.content?.[0]?.text||"Sin respuesta."}]);
+    }catch(e){
+      setMsgs([...newMsgs,{role:"assistant",text:"❌ Error de conexión. Verifica tu conexión a internet."}]);
+    }
+    setLoading(false);
+  };
+
   const quickQ=["¿Están bien mis parámetros?","Enfermedades comunes en discos","Consejos para CO2","¿Puedo añadir más peces?"];
 
   const exportCSV=()=>{const rows=[["Fecha","Tipo","Temp","pH","GH","KH","Amonio","Nitritos","Nitratos","CO2","Notas"]];history.forEach(h=>{if(h.tipo==="parametros")rows.push([h.fecha,"Parámetros",...PARAM_DEFS.map(p=>h.datos?.[p.key]||""),""]);else rows.push([h.fecha,h.tipo,"","","","","","","","",h.notas||h.enfermedad||h.tipo_alimento||""]);});const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([rows.map(r=>r.join(",")).join("\n")],{type:"text/csv"}));a.download="aqualog.csv";a.click();};
 
-  const stC={ok:C.green,warning:C.orange,danger:C.red,neutral:C.muted};
+  const eC={saludable:C.green,enfermo:C.red,observacion:C.yellow};
+
+  // Etiqueta descriptiva para el calendario
+  const getEventLabel = (e) => {
+    if(e.tipo==="mantenimiento") return e.tareasTexto||Object.entries(e.tareas||{}).filter(([,v])=>v).map(([k])=>mantTasks?.[k]||k).join(", ")||"Mantenimiento";
+    if(e.tipo==="alimentacion") return `${e.tipo_alimento||""} (${e.cantidad||""})`;
+    if(e.tipo==="parametros") return "Medición parámetros";
+    if(e.tipo==="tratamiento") return e.enfermedad||"Tratamiento";
+    if(e.tipo==="recordatorio") return e.titulo||"Recordatorio";
+    if(e.tipo==="gasto") return e.concepto||"Gasto";
+    return e.tipo;
+  };
 
   return (
     <div style={{paddingBottom:90}}>
       <TabBar tabs={[{id:"chat",label:"🤖 IA"},{id:"informe",label:"📊 Informe"},{id:"cal",label:"📅 Cal."},{id:"gastos",label:"💰 €"}]} active={tab} onChange={setTab} small/>
 
-      {/* ── CHAT ── */}
       {tab==="chat"&&<div style={{padding:"0 16px"}}>
         <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:10,marginBottom:4,scrollbarWidth:"none"}}>{quickQ.map((q,i)=><button key={i} onClick={()=>send(q)} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:20,padding:"6px 13px",color:C.blue,fontSize:11,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,fontFamily:"inherit"}}>{q}</button>)}</div>
         <div style={{...ss.card,padding:0,overflow:"hidden"}}>
@@ -664,9 +1108,7 @@ function IA({ params, fish, history, expenses, setExpenses, reminders }) {
         <button onClick={exportCSV} style={{...ss.btn,marginTop:10,background:"linear-gradient(135deg,#7c3aed,#a78bfa)"}}>📤 Exportar CSV</button>
       </div>}
 
-      {/* ── INFORME MENSUAL ── */}
       {tab==="informe"&&<div style={{padding:"0 16px"}}>
-        {/* Selector mes */}
         <div style={{...ss.card,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <button onClick={()=>{if(reportMonth===0){setReportMonth(11);setReportYear(y=>y-1);}else setReportMonth(m=>m-1);}} style={{background:"none",border:"none",color:C.blue,fontSize:20,cursor:"pointer",fontFamily:"inherit"}}>‹</button>
           <div style={{textAlign:"center"}}><div style={{fontSize:16,fontWeight:700,color:C.text}}>{MESES[reportMonth]} {reportYear}</div><div style={{fontSize:10,color:C.muted}}>Informe mensual</div></div>
@@ -676,12 +1118,10 @@ function IA({ params, fish, history, expenses, setExpenses, reminders }) {
         {report.mParams.length===0&&report.mMant.length===0&&report.mFeed.length===0
           ?<div style={{...ss.card,textAlign:"center",color:C.muted,padding:32}}><div style={{fontSize:40,marginBottom:8}}>📊</div>Sin datos para {MESES[reportMonth]} {reportYear}</div>
           :<>
-            {/* Resumen */}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
               {[{l:"Mediciones",v:report.mParams.length,i:"📊",c:C.blue},{l:"Mantenimientos",v:report.mMant.length,i:"🔧",c:C.orange},{l:"Comidas",v:report.mFeed.length,i:"🍽️",c:C.green},{l:"Tratamientos",v:report.mTreat.length,i:"💊",c:C.red}].map(it=><div key={it.l} style={{background:C.card,borderRadius:12,padding:"12px",border:`1px solid ${it.c}22`}}><div style={{fontSize:18,marginBottom:4}}>{it.i}</div><div style={{fontSize:10,color:C.muted}}>{it.l}</div><div style={{fontSize:22,fontWeight:800,color:it.c}}>{it.v}</div></div>)}
             </div>
 
-            {/* Parámetros del mes */}
             <div style={ss.card}>
               <div style={ss.slab}>Parámetros del mes</div>
               {report.paramStats.filter(p=>p.avg!==null).map(p=>(
@@ -700,17 +1140,18 @@ function IA({ params, fish, history, expenses, setExpenses, reminders }) {
               {report.paramStats.every(p=>p.avg===null)&&<div style={{textAlign:"center",color:C.muted,fontSize:12,padding:12}}>Sin mediciones este mes</div>}
             </div>
 
-            {/* Mantenimiento */}
             {report.mMant.length>0&&<div style={ss.card}>
               <div style={ss.slab}>Mantenimiento</div>
               <div style={{display:"flex",gap:8,marginBottom:10}}>
                 <div style={{flex:1,background:C.bg,borderRadius:10,padding:"8px 10px",textAlign:"center"}}><div style={{fontSize:9,color:C.muted}}>Cambios de agua</div><div style={{fontSize:20,fontWeight:800,color:C.blue}}>{report.cambiosAgua}</div></div>
                 <div style={{flex:1,background:C.bg,borderRadius:10,padding:"8px 10px",textAlign:"center"}}><div style={{fontSize:9,color:C.muted}}>% Promedio</div><div style={{fontSize:20,fontWeight:800,color:C.green}}>{report.pctPromedio>0?Math.round(report.pctPromedio):"—"}{report.pctPromedio>0?"%":""}</div></div>
               </div>
-              {report.mMant.map((m,i)=><div key={i} style={ss.row}><span style={{fontSize:11,color:C.muted}}>{m.fecha}</span><span style={{fontSize:11,color:C.text}}>{Object.entries(m.tareas||{}).filter(([,v])=>v).map(([k])=>k).join(", ")||"Sin tareas"}</span></div>)}
+              {report.mMant.map((m,i)=><div key={i} style={ss.row}>
+                <span style={{fontSize:11,color:C.muted}}>{m.fecha}</span>
+                <span style={{fontSize:11,color:C.text}}>{m.tareasTexto||Object.entries(m.tareas||{}).filter(([,v])=>v).map(([k])=>mantTasks?.[k]||k).join(", ")||"Sin tareas"}</span>
+              </div>)}
             </div>}
 
-            {/* Gastos del mes */}
             <div style={ss.card}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
                 <div style={ss.slab}>Gastos del mes</div>
@@ -721,7 +1162,6 @@ function IA({ params, fish, history, expenses, setExpenses, reminders }) {
               {report.mExp.length===0&&<div style={{textAlign:"center",color:C.muted,fontSize:12,padding:8}}>Sin gastos registrados</div>}
             </div>
 
-            {/* Estado peces */}
             <div style={ss.card}>
               <div style={ss.slab}>Estado de los peces</div>
               {fish.map(f=><div key={f.id} style={{display:"flex",alignItems:"center",gap:10,padding:"7px 0",borderBottom:`1px solid #1a2540`}}><span style={{fontSize:20}}>{f.emoji}</span><div style={{flex:1}}><div style={{fontSize:13,fontWeight:700,color:C.text}}>{f.nombre}</div><div style={{fontSize:10,color:C.muted}}>{f.cantidad} ejemplares · {f.especie}</div></div><span style={{fontSize:10,background:(eC[f.estado]||C.green)+"22",color:eC[f.estado]||C.green,border:`1px solid ${(eC[f.estado]||C.green)}44`,borderRadius:20,padding:"2px 8px"}}>{f.estado}</span></div>)}
@@ -730,7 +1170,6 @@ function IA({ params, fish, history, expenses, setExpenses, reminders }) {
         }
       </div>}
 
-      {/* ── CALENDARIO ── */}
       {tab==="cal"&&<div style={{padding:"0 16px"}}>
         <div style={{...ss.card,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <button onClick={()=>setCalDate(d=>new Date(d.getFullYear(),d.getMonth()-1,1))} style={{background:"none",border:"none",color:C.blue,fontSize:20,cursor:"pointer",fontFamily:"inherit"}}>‹</button>
@@ -747,11 +1186,20 @@ function IA({ params, fish, history, expenses, setExpenses, reminders }) {
         <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:12}}>{Object.entries(tipoColor).map(([t,c])=><div key={t} style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:C.muted}}><div style={{width:7,height:7,borderRadius:"50%",background:c}}/>{t}</div>)}</div>
         <div style={ss.card}>
           <div style={ss.slab}>Eventos de {MESES[month]}</div>
-          {[...history,...reminders.map(r=>({...r,tipo:"recordatorio",fecha:r.fecha})),...expenses.map(e=>({...e,tipo:"gasto"}))].filter(e=>{try{const d=new Date(e.fecha?.includes("/")?e.fecha.split("/").reverse().join("-"):e.fecha);return d.getMonth()===month&&d.getFullYear()===year;}catch{return false;}}).slice(0,12).map((e,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:10,...ss.row}}><div style={{width:8,height:8,borderRadius:"50%",background:tipoColor[e.tipo]||C.muted,flexShrink:0}}/><div style={{flex:1}}><div style={{fontSize:12,color:C.text}}>{e.titulo||e.tipo_alimento||e.concepto||e.enfermedad||e.tipo}</div><div style={{fontSize:9,color:C.muted}}>{e.fecha}</div></div><span style={{fontSize:9,color:tipoColor[e.tipo]||C.muted,background:(tipoColor[e.tipo]||C.muted)+"22",borderRadius:20,padding:"1px 6px"}}>{e.tipo}</span></div>)}
+          {allEvents.filter(e=>{try{const d=new Date(e.fecha?.includes("/")?e.fecha.split("/").reverse().join("-"):e.fecha);return d.getMonth()===month&&d.getFullYear()===year;}catch{return false;}}).slice(0,20).map((e,i)=>(
+            <div key={i} style={{display:"flex",alignItems:"center",gap:10,...ss.row}}>
+              <div style={{width:8,height:8,borderRadius:"50%",background:tipoColor[e.tipo]||C.muted,flexShrink:0}}/>
+              <div style={{flex:1}}>
+                {/* Descripción concreta de la tarea */}
+                <div style={{fontSize:12,color:C.text}}>{getEventLabel(e)}</div>
+                <div style={{fontSize:9,color:C.muted}}>{e.fecha}{e.hora?` · ${e.hora}`:""}</div>
+              </div>
+              <span style={{fontSize:9,color:tipoColor[e.tipo]||C.muted,background:(tipoColor[e.tipo]||C.muted)+"22",borderRadius:20,padding:"1px 6px"}}>{e.tipo}</span>
+            </div>
+          ))}
         </div>
       </div>}
 
-      {/* ── GASTOS ── */}
       {tab==="gastos"&&<div style={{padding:"0 16px"}}>
         <div style={{display:"flex",gap:10,marginBottom:12}}>
           <div style={{flex:1,...ss.card,background:"linear-gradient(135deg,#1e1b4b,#1e293b)",marginBottom:0}}><div style={{fontSize:10,color:"#a78bfa",fontWeight:700,marginBottom:2}}>ESTE MES</div><div style={{fontSize:24,fontWeight:900,color:"#fff"}}>{totalMonth.toFixed(2)}<span style={{fontSize:11,color:"#a78bfa"}}> €</span></div></div>
@@ -775,43 +1223,292 @@ function IA({ params, fish, history, expenses, setExpenses, reminders }) {
   );
 }
 
+
+// ── MULTI-ACUARIO ─────────────────────────────────────────────────────────────
+function createEmptyAquarium(id, nombre) {
+  return {
+    id,
+    nombre: nombre || "Nuevo Acuario",
+    params: {},
+    fish: [],
+    plants: [],
+    history: [],
+    gallery: [],
+    reminders: [],
+    expenses: [],
+    photo: null,
+    customLimits: {},
+    activeExtraParams: [],
+    equipo: [...INITIAL_EQUIPO.map(e=>({...e,id:Date.now()+Math.random()}))],
+    mantTasks: {...MANT_TASKS_DEFAULT},
+  };
+}
+
+// Hook para leer/escribir todo el estado de acuarios en localStorage
+function useAquariums() {
+  const KEY = "aq4_aquariums";
+  const KEY_ACTIVE = "aq4_activeAquarium";
+
+  const [aquariums, setAquariumsRaw] = useState(() => {
+    try {
+      const saved = localStorage.getItem(KEY);
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    // Primera vez: migrar datos existentes del acuario único
+    const migrate = (k, def) => { try { const s=localStorage.getItem("aq4_"+k); return s?JSON.parse(s):def; } catch { return def; } };
+    return [{
+      id: "aq1",
+      nombre: migrate("aquariumName", "Amazónico 300L"),
+      params: migrate("params", {}),
+      fish: migrate("fish", INITIAL_FISH),
+      plants: migrate("plants", INITIAL_PLANTS),
+      history: migrate("history", []),
+      gallery: migrate("gallery", []),
+      reminders: migrate("reminders", []),
+      expenses: migrate("expenses", []),
+      photo: migrate("photo", null),
+      customLimits: migrate("customLimits", {}),
+      activeExtraParams: migrate("activeExtraParams", []),
+      equipo: migrate("equipo", INITIAL_EQUIPO),
+      mantTasks: migrate("mantTasks", MANT_TASKS_DEFAULT),
+    }];
+  });
+
+  const [activeId, setActiveIdRaw] = useState(() => {
+    try { return localStorage.getItem(KEY_ACTIVE) || "aq1"; } catch { return "aq1"; }
+  });
+
+  const setAquariums = (val) => {
+    setAquariumsRaw(prev => {
+      const next = typeof val === "function" ? val(prev) : val;
+      try { localStorage.setItem(KEY, JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+
+  const setActiveId = (id) => {
+    setActiveIdRaw(id);
+    try { localStorage.setItem(KEY_ACTIVE, id); } catch {}
+  };
+
+  const updateAquarium = (id, updater) => {
+    setAquariums(prev => prev.map(a => a.id === id ? {...a, ...(typeof updater === "function" ? updater(a) : updater)} : a));
+  };
+
+  const activeAquarium = aquariums.find(a => a.id === activeId) || aquariums[0];
+
+  return { aquariums, setAquariums, activeId, setActiveId, activeAquarium, updateAquarium };
+}
+
+// ── SELECTOR DE ACUARIOS (pantalla modal) ─────────────────────────────────────
+function AquariumSelector({ aquariums, activeId, setActiveId, setAquariums, onClose }) {
+  const [showNew, setShowNew] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState("");
+
+  const addAquarium = () => {
+    if (!newName.trim()) return;
+    const id = "aq_" + Date.now();
+    setAquariums(prev => [...prev, createEmptyAquarium(id, newName.trim())]);
+    setActiveId(id);
+    setNewName("");
+    setShowNew(false);
+    onClose();
+  };
+
+  const deleteAquarium = (id) => {
+    if (aquariums.length <= 1) return;
+    if (!confirm("¿Eliminar este acuario y todos sus datos?")) return;
+    setAquariums(prev => prev.filter(a => a.id !== id));
+    if (activeId === id) setActiveId(aquariums.find(a => a.id !== id)?.id || aquariums[0].id);
+  };
+
+  const renameAquarium = (id) => {
+    if (!editName.trim()) return;
+    setAquariums(prev => prev.map(a => a.id === id ? {...a, nombre: editName.trim()} : a));
+    setEditingId(null);
+  };
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.85)",zIndex:200,display:"flex",flexDirection:"column",justifyContent:"flex-end"}}>
+      <div style={{background:C.card,borderRadius:"20px 20px 0 0",padding:"20px 16px 40px",maxHeight:"80vh",overflowY:"auto"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+          <div style={{fontSize:17,fontWeight:800,color:C.text}}>Mis Acuarios</div>
+          <button onClick={onClose} style={{background:C.bg,border:"none",borderRadius:10,padding:"6px 12px",color:C.muted,cursor:"pointer",fontFamily:"inherit",fontSize:14}}>✕ Cerrar</button>
+        </div>
+
+        {aquariums.map(aq => (
+          <div key={aq.id} style={{background:activeId===aq.id?"linear-gradient(135deg,#0f3460,#1e293b)":C.bg,borderRadius:14,padding:"14px 16px",marginBottom:10,border:`1px solid ${activeId===aq.id?C.blue+"66":C.border}`}}>
+            {editingId === aq.id
+              ? <div style={{display:"flex",gap:8}}>
+                  <input value={editName} onChange={e=>setEditName(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")renameAquarium(aq.id);}} autoFocus style={{...ss.inp,flex:1,fontSize:14,padding:"8px 12px"}}/>
+                  <button onClick={()=>renameAquarium(aq.id)} style={{background:"#0ea5e9",border:"none",borderRadius:8,padding:"8px 12px",color:"#fff",fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>✓</button>
+                  <button onClick={()=>setEditingId(null)} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 12px",color:C.muted,cursor:"pointer",fontFamily:"inherit"}}>✕</button>
+                </div>
+              : <div style={{display:"flex",alignItems:"center",gap:12}}>
+                  {aq.photo
+                    ? <img src={aq.photo} style={{width:48,height:48,borderRadius:10,objectFit:"cover",flexShrink:0}} alt=""/>
+                    : <div style={{width:48,height:48,borderRadius:10,background:C.card,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><DiscusFish size={24} color={activeId===aq.id?C.blue:"#475569"}/></div>
+                  }
+                  <div style={{flex:1}} onClick={()=>{setActiveId(aq.id);onClose();}}>
+                    <div style={{fontSize:15,fontWeight:700,color:activeId===aq.id?C.blue:C.text,cursor:"pointer"}}>{aq.nombre}</div>
+                    <div style={{fontSize:11,color:C.muted}}>{(aq.fish||[]).reduce((s,f)=>s+f.cantidad,0)} peces · {(aq.plants||[]).length} plantas</div>
+                    {activeId===aq.id&&<div style={{fontSize:10,color:C.blue,marginTop:2}}>● Activo ahora</div>}
+                  </div>
+                  <div style={{display:"flex",gap:6}}>
+                    <button onClick={()=>{setEditingId(aq.id);setEditName(aq.nombre);}} style={{background:"none",border:`1px solid ${C.border}`,borderRadius:8,padding:"5px 8px",color:C.muted,cursor:"pointer",fontFamily:"inherit",fontSize:12}}>✏️</button>
+                    {aquariums.length>1&&<button onClick={()=>deleteAquarium(aq.id)} style={{background:"none",border:`1px solid ${C.red}44`,borderRadius:8,padding:"5px 8px",color:C.red,cursor:"pointer",fontFamily:"inherit",fontSize:12}}>🗑️</button>}
+                  </div>
+                </div>
+            }
+          </div>
+        ))}
+
+        {showNew
+          ? <div style={{background:C.bg,borderRadius:14,padding:14,border:`2px dashed ${C.green}`}}>
+              <div style={{fontSize:11,color:C.muted,marginBottom:8}}>Nombre del nuevo acuario</div>
+              <input value={newName} onChange={e=>setNewName(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addAquarium()} placeholder="Ej: Plantado 60L, Marino 100L..." autoFocus style={{...ss.inp,marginBottom:10}}/>
+              <div style={{display:"flex",gap:8}}>
+                <button onClick={addAquarium} style={{...ss.btn,flex:1,padding:12,fontSize:14}}>✓ Crear acuario</button>
+                <button onClick={()=>setShowNew(false)} style={{flex:1,background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:12,color:C.muted,fontSize:14,cursor:"pointer",fontFamily:"inherit"}}>Cancelar</button>
+              </div>
+            </div>
+          : <button onClick={()=>setShowNew(true)} style={{width:"100%",background:"none",border:`2px dashed ${C.green}`,borderRadius:14,padding:14,color:C.green,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit",marginTop:4}}>
+              + Añadir nuevo acuario
+            </button>
+        }
+      </div>
+    </div>
+  );
+}
+
 // ── APP ───────────────────────────────────────────────────────────────────────
 const eC={saludable:C.green,enfermo:C.red,observacion:C.yellow};
 
 export default function App() {
   const [section, setSection] = useState("dashboard");
-  const [params, setParams] = usePersist("params", {});
-  const [fish, setFish] = usePersist("fish", INITIAL_FISH);
-  const [plants, setPlants] = usePersist("plants", INITIAL_PLANTS);
-  const [history, setHistory] = usePersist("history", []);
-  const [gallery, setGallery] = usePersist("gallery", []);
-  const [reminders, setReminders] = usePersist("reminders", []);
-  const [expenses, setExpenses] = usePersist("expenses", []);
-  const [photo, setPhotoRaw] = usePersist("photo", null);
-  const setPhoto = useCallback(v=>setPhotoRaw(v),[setPhotoRaw]);
-  const addHistory = useCallback(e=>setHistory(h=>[{...e,id:Date.now()},...h]),[setHistory]);
+  const [showAquariumSelector, setShowAquariumSelector] = useState(false);
+  const { aquariums, setAquariums, activeId, setActiveId, activeAquarium, updateAquarium } = useAquariums();
+
+  // Helpers para leer/escribir el acuario activo
+  const aq = activeAquarium;
+  const upd = (field, val) => updateAquarium(activeId, a => ({...a, [field]: typeof val === "function" ? val(a[field]) : val}));
+
+  const params = aq.params || {};
+  const setParams = (v) => upd("params", v);
+  const fish = aq.fish || [];
+  const setFish = (v) => upd("fish", v);
+  const plants = aq.plants || [];
+  const setPlants = (v) => upd("plants", v);
+  const history = aq.history || [];
+  const setHistory = (v) => upd("history", v);
+  const gallery = aq.gallery || [];
+  const setGallery = (v) => upd("gallery", v);
+  const reminders = aq.reminders || [];
+  const setReminders = (v) => upd("reminders", v);
+  const expenses = aq.expenses || [];
+  const setExpenses = (v) => upd("expenses", v);
+  const photo = aq.photo || null;
+  const setPhoto = (v) => upd("photo", v);
+  const aquariumName = aq.nombre || "Mi Acuario";
+  const setAquariumName = (v) => updateAquarium(activeId, {nombre: v});
+  const customLimits = aq.customLimits || {};
+  const setCustomLimits = (v) => upd("customLimits", v);
+  const activeExtraParams = aq.activeExtraParams || [];
+  const setActiveExtraParams = (v) => upd("activeExtraParams", v);
+  const equipo = aq.equipo || INITIAL_EQUIPO;
+  const setEquipo = (v) => upd("equipo", v);
+  const mantTasks = aq.mantTasks || MANT_TASKS_DEFAULT;
+  const setMantTasks = (v) => upd("mantTasks", v);
+
+  const addHistory = useCallback(e => setHistory(h => [{...e, id:Date.now()}, ...(Array.isArray(h)?h:[])]), [activeId]);
   const pending = reminders.filter(r=>!r.done).length;
-  const alerts = useAutoAlerts(params);
+  const alerts = useAutoAlerts(params, customLimits);
   const criticals = alerts.filter(a=>a.level==="danger").length;
+
+  // Cambiar favicon al logo de AquaLog
+  useEffect(()=>{
+    const link = document.querySelector("link[rel~='icon']") || document.createElement("link");
+    link.rel = "icon"; link.href = LOGO_FAV;
+    document.head.appendChild(link);
+    document.title = "AquaLog";
+  }, []);
 
   return (
     <div style={{background:C.bg,minHeight:"100vh",maxWidth:430,margin:"0 auto",fontFamily:"-apple-system,'SF Pro Display','Segoe UI',sans-serif",color:C.text}}>
-      <div style={{padding:"48px 16px 14px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+
+      {showAquariumSelector&&(
+        <AquariumSelector
+          aquariums={aquariums}
+          activeId={activeId}
+          setActiveId={setActiveId}
+          setAquariums={setAquariums}
+          onClose={()=>setShowAquariumSelector(false)}
+        />
+      )}
+
+      {/* Header */}
+      <div style={{padding:"48px 16px 10px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div style={{display:"flex",alignItems:"center",gap:10}}>
-          <DiscusFish size={38} color={C.blue}/>
-          <div><div style={{fontSize:19,fontWeight:900,color:C.text,lineHeight:1.1}}>AquaLog</div><div style={{fontSize:10,color:C.blue,letterSpacing:0.5}}>{SECTIONS.find(s=>s.id===section)?.label}</div></div>
+          <DiscusFish size={84} color={C.blue}/>
+          <div>
+            <div style={{fontSize:19,fontWeight:900,color:C.text,lineHeight:1.1}}>AquaLog</div>
+            <div style={{fontSize:10,color:C.blue,letterSpacing:0.5}}>{SECTIONS.find(s=>s.id===section)?.label}</div>
+          </div>
         </div>
-        {criticals>0
-          ?<div style={{fontSize:11,color:C.red,background:"#450a0a",borderRadius:8,padding:"4px 10px",fontWeight:700,border:`1px solid ${C.red}44`}}>🚨 {criticals} crítica{criticals>1?"s":""}</div>
-          :<div style={{fontSize:10,color:"#334155",background:C.card,borderRadius:8,padding:"4px 8px"}}>💾 Auto-guardado</div>
-        }
+        <div style={{display:"flex",gap:8,alignItems:"center"}}>
+          {criticals>0&&<div style={{fontSize:11,color:C.red,background:"#450a0a",borderRadius:8,padding:"4px 10px",fontWeight:700,border:`1px solid ${C.red}44`}}>🚨 {criticals}</div>}
+          {/* Botón selector de acuario */}
+          <button
+            onClick={()=>setShowAquariumSelector(true)}
+            style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:"6px 10px",cursor:"pointer",display:"flex",alignItems:"center",gap:6,fontFamily:"inherit"}}
+          >
+            <span style={{fontSize:16}}>🐡</span>
+            <div style={{textAlign:"left"}}>
+              <div style={{fontSize:11,fontWeight:700,color:C.text,maxWidth:90,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{aquariumName}</div>
+              {aquariums.length>1&&<div style={{fontSize:9,color:C.muted}}>{aquariums.length} acuarios ▾</div>}
+            </div>
+          </button>
+        </div>
       </div>
 
-      {section==="dashboard"&&<Dashboard params={params} fish={fish} history={history} reminders={reminders} expenses={expenses} photo={photo} setPhoto={setPhoto} setSection={setSection}/>}
-      {section==="params"&&<Params params={params} setParams={setParams} history={history} addHistory={addHistory}/>}
+      {/* Tabs rápidos si hay varios acuarios */}
+      {aquariums.length > 1 && (
+        <div style={{display:"flex",gap:6,padding:"0 16px 10px",overflowX:"auto",scrollbarWidth:"none"}}>
+          {aquariums.map(a=>(
+            <button
+              key={a.id}
+              onClick={()=>setActiveId(a.id)}
+              style={{
+                flexShrink:0,
+                background:activeId===a.id?"linear-gradient(135deg,#0ea5e9,#38bdf8)":C.card,
+                border:`1px solid ${activeId===a.id?C.blue:C.border}`,
+                borderRadius:20,
+                padding:"5px 14px",
+                color:activeId===a.id?"#fff":C.muted,
+                fontSize:12,
+                fontWeight:activeId===a.id?700:400,
+                cursor:"pointer",
+                fontFamily:"inherit",
+                whiteSpace:"nowrap"
+              }}
+            >
+              {a.nombre}
+            </button>
+          ))}
+          <button
+            onClick={()=>setShowAquariumSelector(true)}
+            style={{flexShrink:0,background:"none",border:`1px dashed ${C.border}`,borderRadius:20,padding:"5px 12px",color:C.muted,fontSize:12,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}
+          >+ Añadir</button>
+        </div>
+      )}
+
+      {section==="dashboard"&&<Dashboard params={params} fish={fish} plants={plants} history={history} reminders={reminders} expenses={expenses} photo={photo} setPhoto={setPhoto} aquariumName={aquariumName} setAquariumName={setAquariumName} setSection={setSection}/>}
+      {section==="params"&&<Params params={params} setParams={setParams} history={history} addHistory={addHistory} customLimits={customLimits} setCustomLimits={setCustomLimits} activeExtraParams={activeExtraParams} setActiveExtraParams={setActiveExtraParams}/>}
       {section==="vida"&&<Vida fish={fish} setFish={setFish} plants={plants} setPlants={setPlants} gallery={gallery} setGallery={setGallery}/>}
-      {section==="extras"&&<Extras addHistory={addHistory} history={history} reminders={reminders} setReminders={setReminders}/>}
-      {section==="ia"&&<IA params={params} fish={fish} history={history} expenses={expenses} setExpenses={setExpenses} reminders={reminders} setReminders={setReminders}/>}
+      {section==="extras"&&<Extras addHistory={addHistory} history={history} reminders={reminders} setReminders={setReminders} equipo={equipo} setEquipo={setEquipo} mantTasks={mantTasks} setMantTasks={setMantTasks}/>}
+      {section==="ia"&&<IA params={params} fish={fish} history={history} expenses={expenses} setExpenses={setExpenses} reminders={reminders} mantTasks={mantTasks}/>}
 
       <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:430,background:C.card,borderTop:`1px solid ${C.border}`,display:"flex",padding:"10px 0 18px",zIndex:100}}>
         {SECTIONS.map(sec=>(
